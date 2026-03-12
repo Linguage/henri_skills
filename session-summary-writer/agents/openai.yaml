@@ -1,0 +1,4 @@
+interface:
+  display_name: "Session Summary Writer"
+  short_description: "Write staged work summaries from a series of sessions."
+  default_prompt: "Write a staged work summary based on this series of sessions and save it in the current repository's work-notes directory using the established project style."
