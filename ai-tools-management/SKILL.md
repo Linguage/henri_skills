@@ -38,7 +38,7 @@ Scan, back up, clean, and uninstall AI development tools on macOS.
 |------|----|-----------|-------------|--------------|
 | VS Code | `vscode` | `/Applications/Visual Studio Code.app` | `~/Library/Application Support/Code/` | `Electron` (Code) |
 | Cursor | `cursor` | `/Applications/Cursor.app` | `~/.cursor/` | `Cursor` |
-| Windsurf | `windsurf` | `/Applications/Windsurf.app` | `~/.codeium/` | `Windsurf` |
+| Windsurf | `windsurf` | `/Applications/Windsurf.app` | `~/.windsurf/`, `~/.codeium/` | `Windsurf` |
 | Claude Code | `claude-code` | — (CLI) | `~/.claude/` | `claude` |
 | OpenCode | `opencode` | — (CLI) | `~/.local/share/opencode/` | `opencode` |
 
@@ -50,6 +50,8 @@ for p in \
   "/Applications/Visual Studio Code.app" \
   "/Applications/Cursor.app" \
   "/Applications/Windsurf.app" \
+  "$HOME/.windsurf" \
+  "$HOME/.codeium" \
   "$HOME/.claude" \
   "$HOME/.local/share/opencode" \
   "$HOME/.opencode"; do
@@ -118,16 +120,31 @@ ls ~/.vscode/extensions/ 2>/dev/null | \
 
 ```
 /Applications/Windsurf.app                         # App bundle
+~/.windsurf/
+  ├── extensions/                                  # ✅ CACHE — installed extensions (~1G+)
+  ├── plans/                                       # 🟡 MODERATE
+  └── worktrees/                                   # 🟡 MODERATE
 ~/.codeium/windsurf/
   ├── cascade/*.pb                                 # ⚠️ CHAT — Protobuf binary (~80M)
   ├── database/                                    # 🟡 MODERATE — embedding DB (~62M)
-  ├── ws-browser/                                  # ✅ CACHE — Chromium binary (~465M)
   ├── memories/                                    # ⛔ CONFIG — global rules
   ├── codemaps/                                    # 🟡 MODERATE
   └── implicit/                                    # 🟡 MODERATE
 ```
 
-**Notes:** Cascade `.pb` files cannot be converted to text without the `.proto` schema. Always preserve originals. `ws-browser/` is re-downloaded on next launch.
+**Notes:** 
+- Cascade `.pb` files cannot be converted to text without the `.proto` schema. Always preserve originals.
+- Extensions in `~/.windsurf/extensions/` can be reinstalled from Marketplace.
+- Duplicate extension detection:
+```bash
+ls ~/.windsurf/extensions/ 2>/dev/null | \
+  sed 's/-[0-9].*$//' | sort | uniq -d | while read ext; do
+    echo "Duplicate: $ext"
+    ls -d ~/.windsurf/extensions/${ext}-* 2>/dev/null | while read dir; do
+      echo "  $(du -sh "$dir" | cut -f1) - $(basename "$dir")"
+    done
+  done
+```
 
 ### Claude Code
 
@@ -203,7 +220,7 @@ fi
 | Browser cache | VS Code | `rm -rf ~/Library/Application\ Support/Code/Cache/` |
 | State DB backup | VS Code | `rm -f .../User/globalStorage/state.vscdb.backup` |
 | Old logs (>7d) | VS Code | `find .../Code/logs -mtime +7 -delete` |
-| Duplicate extensions (old versions) | VS Code/Cursor | detect then delete older dirs |
+| Duplicate extensions (old versions) | VS Code/Cursor/Windsurf | detect then delete older dirs |
 | Shell snapshots | Claude Code | `rm -rf ~/.claude/shell-snapshots/` |
 | System cache | VS Code | `rm -rf ~/Library/Caches/com.microsoft.VSCode/` |
 
@@ -213,7 +230,7 @@ fi
 |--------|------|-------|
 | Bundled Chromium | Windsurf | `ws-browser/` ~465M, re-downloaded on launch |
 | WebStorage | VS Code | ~1.4G browser storage |
-| All extensions | Cursor | reinstallable from Marketplace |
+| All extensions | Cursor/Windsurf | reinstallable from Marketplace |
 
 #### Aggressive (medium risk)
 
@@ -254,7 +271,7 @@ echo "Total to free: $((total / 1024))M"
 
 - **VS Code:** `rm -rf ~/.vscode/ ~/Library/Application\ Support/Code/ ~/Library/Caches/com.microsoft.VSCode/` + `sudo rm -rf "/Applications/Visual Studio Code.app"`
 - **Cursor:** `rm -rf ~/.cursor/` + `sudo rm -rf "/Applications/Cursor.app"`
-- **Windsurf:** `rm -rf ~/.codeium/` + `sudo rm -rf "/Applications/Windsurf.app"`
+- **Windsurf:** `rm -rf ~/.windsurf/ ~/.codeium/` + `sudo rm -rf "/Applications/Windsurf.app"`
 - **Claude Code:** `rm -rf ~/.claude/` + `npm uninstall -g @anthropic-ai/claude-code`
 - **OpenCode:** `rm -rf ~/.local/share/opencode/ ~/.opencode/` + `rm -f $(which opencode)`
 
