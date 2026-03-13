@@ -27,6 +27,23 @@ Scan, back up, clean, and uninstall AI development tools on macOS.
 6. **Always use dry-run first.** Show what would be deleted and space freed. Ask for explicit confirmation.
 7. **Warn about sensitive data in backups.** Chat histories and configs may contain API tokens, internal URLs, code snippets.
 8. **Scope sudo narrowly.** Only for `/Applications/*.app` bundles. Never `sudo rm -rf` with variable paths.
+9. **Prefer Trash over rm.** Move files to macOS Trash instead of permanent deletion. Allows recovery if user changes mind.
+
+---
+
+## Helper Function
+
+```bash
+trash() {
+  for path in "$@"; do
+    if [ -e "$path" ]; then
+      osascript -e "tell application \"Finder\" to delete POSIX file \"$path\"" 2>/dev/null || \
+        mv "$path" ~/.Trash/ 2>/dev/null || \
+        rm -rf "$path"
+    fi
+  done
+}
+```
 
 ---
 
@@ -215,14 +232,14 @@ fi
 
 | Target | Tool | Command |
 |--------|------|---------|
-| Extension VSIX cache | VS Code | `rm -rf ~/Library/Application\ Support/Code/CachedExtensionVSIXs/` |
-| App cache | VS Code | `rm -rf ~/Library/Application\ Support/Code/CachedData/` |
-| Browser cache | VS Code | `rm -rf ~/Library/Application\ Support/Code/Cache/` |
-| State DB backup | VS Code | `rm -f .../User/globalStorage/state.vscdb.backup` |
-| Old logs (>7d) | VS Code | `find .../Code/logs -mtime +7 -delete` |
-| Duplicate extensions (old versions) | VS Code/Cursor/Windsurf | detect then delete older dirs |
-| Shell snapshots | Claude Code | `rm -rf ~/.claude/shell-snapshots/` |
-| System cache | VS Code | `rm -rf ~/Library/Caches/com.microsoft.VSCode/` |
+| Extension VSIX cache | VS Code | `trash ~/Library/Application\ Support/Code/CachedExtensionVSIXs` |
+| App cache | VS Code | `trash ~/Library/Application\ Support/Code/CachedData` |
+| Browser cache | VS Code | `trash ~/Library/Application\ Support/Code/Cache` |
+| State DB backup | VS Code | `trash .../User/globalStorage/state.vscdb.backup` |
+| Old logs (>7d) | VS Code | `find .../Code/logs -mtime +7 -exec trash {} +` |
+| Duplicate extensions (old versions) | VS Code/Cursor/Windsurf | detect then `trash` older dirs |
+| Shell snapshots | Claude Code | `trash ~/.claude/shell-snapshots` |
+| System cache | VS Code | `trash ~/Library/Caches/com.microsoft.VSCode` |
 
 #### Moderate (low risk, recoverable)
 
@@ -269,11 +286,11 @@ echo "Total to free: $((total / 1024))M"
 
 **Per-tool uninstall commands:**
 
-- **VS Code:** `rm -rf ~/.vscode/ ~/Library/Application\ Support/Code/ ~/Library/Caches/com.microsoft.VSCode/` + `sudo rm -rf "/Applications/Visual Studio Code.app"`
-- **Cursor:** `rm -rf ~/.cursor/` + `sudo rm -rf "/Applications/Cursor.app"`
-- **Windsurf:** `rm -rf ~/.windsurf/ ~/.codeium/` + `sudo rm -rf "/Applications/Windsurf.app"`
-- **Claude Code:** `rm -rf ~/.claude/` + `npm uninstall -g @anthropic-ai/claude-code`
-- **OpenCode:** `rm -rf ~/.local/share/opencode/ ~/.opencode/` + `rm -f $(which opencode)`
+- **VS Code:** `trash ~/.vscode ~/Library/Application\ Support/Code ~/Library/Caches/com.microsoft.VSCode` + `sudo rm -rf "/Applications/Visual Studio Code.app"`
+- **Cursor:** `trash ~/.cursor` + `sudo rm -rf "/Applications/Cursor.app"`
+- **Windsurf:** `trash ~/.windsurf ~/.codeium` + `sudo rm -rf "/Applications/Windsurf.app"`
+- **Claude Code:** `trash ~/.claude` + `npm uninstall -g @anthropic-ai/claude-code`
+- **OpenCode:** `trash ~/.local/share/opencode ~/.opencode` + `trash "$(which opencode)"`
 
 ---
 
