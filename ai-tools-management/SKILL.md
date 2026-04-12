@@ -1,6 +1,9 @@
 ---
 name: ai-tools-management
 description: Scan, back up, clean, and uninstall AI development tools on macOS. Use when the user asks about AI tool disk usage, wants to clean caches, back up chat histories, or completely remove an AI coding assistant.
+author: Henri
+created: "2026-03-12"
+last_updated: "2026-03-13"
 ---
 
 # AI Development Tools Management (macOS)

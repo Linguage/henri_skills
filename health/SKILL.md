@@ -2,6 +2,11 @@
 name: health
 description: Audit Claude Code configuration health across all layers (CLAUDE.md, rules, skills, hooks, MCP). Run periodically or when collaboration feels off.
 version: "1.3.0"
+created: "2026-03-13"
+source: https://github.com/tw93/claude-health
+author: Tw93
+modifications: 本 Skill 可能是在原作者 Skill 的基础上进行了修改。
+last_updated: "2026-03-13"
 ---
 
 # Claude Code Configuration Health Audit

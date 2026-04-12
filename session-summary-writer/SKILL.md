@@ -2,6 +2,9 @@
 name: session-summary-writer
 version: "1.1.0"
 description: Write work summaries for coding sessions and phase recaps with YAML frontmatter
+author: Henri
+created: "2026-03-10"
+last_updated: "2026-03-14"
 ---
 
 # Session Summary Writer

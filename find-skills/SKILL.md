@@ -1,6 +1,11 @@
 ---
 name: find-skills
 description: Helps users discover and install agent skills when they ask questions like "how do I do X", "find a skill for X", "is there a skill that can...", or express interest in extending capabilities. This skill should be used when the user is looking for functionality that might exist as an installable skill.
+created: "2026-03-13"
+source: https://github.com/tw93/claude-health
+author: Tw93
+modifications: 本 Skill 可能是在原作者 Skill 的基础上进行了修改。
+last_updated: "2026-03-13"
 ---
 
 # Find Skills

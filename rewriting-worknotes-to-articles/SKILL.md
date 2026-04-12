@@ -1,6 +1,9 @@
 ---
 name: rewriting-worknotes-to-articles
 description: "Rewrite numbered work-notes from the current repository's work-notes area into reflective, narrative-style articles for its local articles subdirectory and optionally for external blog publication. Use when the user wants to turn a summary note into a shareable essay, or asks to generate an article from a work note."
+author: Henri
+created: "2026-03-12"
+last_updated: "2026-03-12"
 ---
 
 # Rewriting Work Notes to Articles

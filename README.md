@@ -18,18 +18,25 @@ henri_skills/                          ← 源仓库（本仓库）
 
 ## Skills 列表
 
-| Skill | 说明 |
-|-------|------|
-| [ai-tools-management](ai-tools-management/) | 扫描、备份、清理和卸载 macOS 上的 AI 开发工具 |
-| [find-skills](find-skills/) | 发现并安装 agent skills |
-| [health](health/) | 审计 Claude Code 各层配置健康状态 |
-| [rewriting-worknotes-to-articles](rewriting-worknotes-to-articles/) | 将工作笔记改写为叙述性反思文章 |
-| [session-summary-writer](session-summary-writer/) | 为编码会话编写工作总结文档 |
-| [testing-sdk-models](testing-sdk-models/) | 测试 Claude Agent SDK 对各模型 provider 的连通性 |
+### 原创
 
-> **说明与致谢**：
-> - `cc-switch` 机制源自开源项目 [farion1231/cc-switch](https://github.com/farion1231/cc-switch)
-> - `health` 与 `find-skills` 这两个 Skill 迁移自开源项目 [tw93/claude-health](https://github.com/tw93/claude-health/tree/main)
+| Skill | 作者 | 说明 |
+|-------|------|------|
+| [ai-tools-management](ai-tools-management/) | henri | 扫描、备份、清理和卸载 macOS 上的 AI 开发工具 |
+| [doc-system-scaffold](doc-system-scaffold/) | henri | 一键搭建项目文档系统骨架 |
+| [rewriting-worknotes-to-articles](rewriting-worknotes-to-articles/) | henri | 将工作笔记改写为叙述性反思文章 |
+| [session-summary-writer](session-summary-writer/) | henri | 为编码会话编写工作总结文档 |
+| [testing-sdk-models](testing-sdk-models/) | henri | 测试 Claude Agent SDK 对各模型 provider 的连通性 |
+
+### 第三方
+
+| Skill | 原作者 | 说明 |
+|-------|--------|------|
+| [find-skills](find-skills/) | [Tw93](https://github.com/tw93)（[claude-health](https://github.com/tw93/claude-health)） | 发现并安装 agent skills |
+| [health](health/) | [Tw93](https://github.com/tw93)（[claude-health](https://github.com/tw93/claude-health)） | 审计 Claude Code 各层配置健康状态 |
+| [baoyu-youtube-transcript](baoyu-youtube-transcript/) | [JimLiu](https://github.com/JimLiu)（[baoyu-skills](https://github.com/JimLiu/baoyu-skills)） | 下载 YouTube 字幕/封面等 |
+
+`created` 为该 `SKILL.md` **首次进入本仓库**的 Git 提交日（`git log --reverse --format=%cs -- <path> | head -1`）。`last_updated` 取**最近一次非 `2026-04-12`** 的提交；若除去该日后无记录则省略。有上游的另含 `source` / `author` / `modifications`。目录引用见 [farion1231/cc-switch](https://github.com/farion1231/cc-switch)。
 
 ## 新增 Skill
 

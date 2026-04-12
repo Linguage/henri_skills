@@ -1,6 +1,8 @@
 ---
 name: testing-sdk-models
 description: "Test Claude Agent SDK connectivity and third-party model providers (GLM, MiniMax, etc.). Use when asked to test SDK, test model, check API connection, or verify provider setup."
+author: Henri
+created: "2026-03-15"
 ---
 
 # Testing SDK Models

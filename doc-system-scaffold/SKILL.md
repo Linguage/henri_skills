@@ -1,6 +1,8 @@
 ---
 name: doc-system-scaffold
 description: "一键搭建项目文档系统骨架（核心三文档 + c.md + jobs/legacy 流转 + Agents.md 约定）。当用户要求初始化文档系统、搭建文档结构、或为新项目创建文档骨架时使用。"
+author: Henri
+created: "2026-04-12"
 ---
 
 # Doc System Scaffold
