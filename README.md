@@ -25,6 +25,7 @@ henri_skills/                          ← 源仓库（本仓库）
 | [health](health/) | 审计 Claude Code 各层配置健康状态 |
 | [rewriting-worknotes-to-articles](rewriting-worknotes-to-articles/) | 将工作笔记改写为叙述性反思文章 |
 | [session-summary-writer](session-summary-writer/) | 为编码会话编写工作总结文档 |
+| [testing-sdk-models](testing-sdk-models/) | 测试 Claude Agent SDK 对各模型 provider 的连通性 |
 
 > **说明与致谢**：
 > - `cc-switch` 机制源自开源项目 [farion1231/cc-switch](https://github.com/farion1231/cc-switch)
