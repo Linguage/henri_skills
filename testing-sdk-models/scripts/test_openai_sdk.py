@@ -9,7 +9,7 @@ KEYS_DIR = Path.home() / ".configanthropic" / "keys"
 
 PROVIDERS = {
     "glm": {
-        "base_url": "https://open.bigmodel.cn/api/paas/v4",
+        "base_url": "https://open.bigmodel.cn/api/coding/paas/v4",
     },
     "minimax": {
         "base_url": "https://api.minimax.io/v1",
