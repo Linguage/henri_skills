@@ -1,36 +1,52 @@
 ---
 name: testing-sdk-models
-description: "Test Claude Agent SDK connectivity and third-party model providers (GLM, MiniMax, etc.). Use when asked to test SDK, test model, check API connection, or verify provider setup."
+description: "Test Claude Agent SDK and OpenAI Agents SDK connectivity with third-party model providers (GLM, MiniMax, etc.). Use when asked to test SDK, test model, check API connection, or verify provider setup."
 author: Henri
 created: "2026-03-15"
 ---
 
 # Testing SDK Models
 
-Test Claude Agent SDK calls against different model providers configured in `~/.configanthropic/keys/`.
+测试两套 SDK 与第三方 model provider 的连通性。
+
+- **test_anthropic_sdk.py** — 通过 Claude Agent SDK（Anthropic 兼容端点）测试
+- **test_openai_sdk.py** — 通过 OpenAI Agents SDK（OpenAI 兼容端点）测试
 
 ## Prerequisites
 
-- conda environment `henri_env` with `claude_agent_sdk` installed
+- conda environment `henri_env` with `claude_agent_sdk` and `openai-agents` installed
 - Provider key files in `~/.configanthropic/keys/` (e.g., `glm`, `minimax`)
 - Each key file contains `export ANTHROPIC_API_KEY=...`, `ANTHROPIC_BASE_URL=...`, `ANTHROPIC_MODEL=...`
 
 ## Usage
 
-Run `scripts/test_sdk.py` to test SDK model calls:
+### Anthropic SDK 测试
 
 ```bash
 # Test default provider (glm)
-source ~/miniconda3/etc/profile.d/conda.sh && conda activate henri_env && python scripts/test_sdk.py
+source ~/miniconda3/etc/profile.d/conda.sh && conda activate henri_env && python scripts/test_anthropic_sdk.py
 
 # Test specific provider
-python scripts/test_sdk.py minimax
+python scripts/test_anthropic_sdk.py minimax
 
 # Test all available providers
-python scripts/test_sdk.py --all
+python scripts/test_anthropic_sdk.py --all
 
 # Use original Claude (no provider override)
-python scripts/test_sdk.py claude
+python scripts/test_anthropic_sdk.py claude
+```
+
+### OpenAI SDK 测试
+
+```bash
+# Test default provider (glm)
+source ~/miniconda3/etc/profile.d/conda.sh && conda activate henri_env && python scripts/test_openai_sdk.py
+
+# Test specific provider
+python scripts/test_openai_sdk.py minimax
+
+# Test all available providers
+python scripts/test_openai_sdk.py --all
 ```
 
 ### switch-api 集成
@@ -39,16 +55,16 @@ python scripts/test_sdk.py claude
 
 ```bash
 # 切换到 glm 并测试
-python scripts/test_sdk.py --switch glm
+python scripts/test_anthropic_sdk.py --switch glm
 
 # 切换到 minimax 并测试
-python scripts/test_sdk.py --switch minimax
+python scripts/test_anthropic_sdk.py --switch minimax
 
 # 切回官方 Claude 并测试
-python scripts/test_sdk.py --switch claude
+python scripts/test_anthropic_sdk.py --switch claude
 
 # 列出所有可用 provider
-python scripts/test_sdk.py --switch --list
+python scripts/test_anthropic_sdk.py --switch --list
 ```
 
 也可以在 Amp 中直接 source `switch_api.sh` 来切换（不测试）：
@@ -60,7 +76,10 @@ source scripts/switch_api.sh --list
 
 ## Workflow
 
-1. When the user asks to test SDK or model providers, run `scripts/test_sdk.py`
+1. When the user asks to test SDK or model providers, choose the appropriate script:
+   - "test anthropic SDK" / "test claude SDK" → `test_anthropic_sdk.py`
+   - "test openai SDK" → `test_openai_sdk.py`
+   - "test SDK" (unspecified) → run both
 2. If a specific provider is mentioned (e.g., "test glm"), pass it as argument
 3. If the user says "test all", use `--all` flag
 4. If the user says "switch to X" or "切换到 X", use `--switch <provider>`
