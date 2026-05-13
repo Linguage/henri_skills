@@ -1,6 +1,6 @@
 ---
 name: baoyu-youtube-transcript
-description: Downloads YouTube video transcripts/subtitles and cover images by URL or video ID. Supports multiple languages, translation, chapters, and speaker identification. Caches raw data for fast re-formatting. Use when user asks to "get YouTube transcript", "download subtitles", "get captions", "YouTube字幕", "YouTube封面", "视频封面", "video thumbnail", "video cover image", or provides a YouTube URL and wants the transcript/subtitle text or cover image extracted.
+description: "Download YouTube transcripts, subtitles, and cover images by URL or video ID."
 version: 1.1.0
 created: "2026-03-22"
 source: https://github.com/JimLiu/baoyu-skills#baoyu-youtube-transcript
@@ -14,6 +14,8 @@ metadata:
         - bun
         - npx
 ---
+
+> **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。
 
 # YouTube Transcript
 

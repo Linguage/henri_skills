@@ -5,6 +5,8 @@ author: Henri
 created: "2026-04-12"
 ---
 
+> **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。
+
 # Doc System Scaffold
 
 为项目一键生成「人 + AI 协同」文档系统骨架。该系统源自 VeTBIP 项目的实践沉淀，适用于任何中长期技术项目。
@@ -17,19 +19,22 @@ created: "2026-04-12"
 ├── README.md                  ← 项目能力与导航（轻量，不放长指令）
 ├── c.md                       ← 操作清单 cheatsheet（命令、路径、索引）
 └── docs/
-    ├── BLUEPRINT.md            ← 战略层：宏观规划与理念
-    ├── ARCHITECTURE.md         ← 架构层：实现框架与技术细节
-    ├── ROADMAP.md              ← 执行层：阶段路线与 todo-list
+    ├── specs/                  ← 核心治理三件（BLUEPRINT / ARCHITECTURE / ROADMAP）
+    │   ├── BLUEPRINT.md         ← 战略层：宏观规划与理念
+    │   ├── ARCHITECTURE.md      ← 架构层：实现框架与技术细节
+    │   └── ROADMAP.md           ← 执行层：阶段路线与 todo-list
     ├── jobs/                   ← 在制任务文档（doing → done 后移入 legacy）
     │   └── README.md
     ├── legacy/                 ← 已完成任务归档
     │   └── README.md
-    ├── reports/                ← 阶段报告与专项分析
+    ├── reports/                ← 经验沉淀：复盘、原则、可复用结论与决策证据
     │   └── INDEX.md
-    ├── work-notes/             ← 工作日志与 session 记录
+    ├── work-notes/             ← 经历记录：按时间推进的研发工作记录与 session 索引
     │   └── INDEX.md
     └── theory/                 ← 理论推导与参考资料（可选）
 ```
+
+> 核心三件统一收敛在 `docs/specs/` 下，与 `docs/jobs/`、`docs/legacy/`、`docs/reports/`、`docs/work-notes/` 同层并列；`docs/` 根目录不再直接放置散落文档。
 
 ## 触发条件
 
@@ -56,302 +61,19 @@ created: "2026-04-12"
 
 在项目根目录下依次创建以下文件。如果文件已存在，**跳过并提示用户**，不覆盖。协作约定文件统一命名为 `Agents.md`；若检测到 `AGENTS.md`、`agents.md` 等大小写变体，视为已存在并提示规范化，不并行创建第二份。
 
-#### 2.1 docs/BLUEPRINT.md
-
-```markdown
-# {项目名} 项目蓝图 (Blueprint)
-
-> 战略性文档：宏观规划与理念阐述。
-> 最近更新: {date}
-
----
-
-## 1. 项目定位
-
-{项目简述，由用户提供}
-
-## 2. 核心挑战与技术路线
-
-{待补充 — 在项目推进中逐步填写}
-
-## 3. 验收标准
-
-{待补充}
-
-## 4. 战略治理原则
-
-1. **价值优先**：默认先交付业务价值，再按需做结构优化。
-2. **证据驱动**：关键结论应有测试或可复现工况支撑。
-3. **文档分层**：战略（Blueprint）、架构（Architecture）、路线（Roadmap）各司其职。
-4. **一问一主文档**：同一个高频问题只保留一个主文档负责回答，避免并行维护多个真相源。
-5. **Day 1 可归档**：明显会形成任务线、专题线或实验线的工作，从第一天开始保留入口、输出、摘要、验证和冻结条件。
-
-## 5. 文档系统边界
-
-| 文档 | 职责 |
-|------|------|
-| `BLUEPRINT.md` | 战略层：宏观规划、理念、技术路线与验收标准 |
-| `ARCHITECTURE.md` | 架构层：功能实现框架与关键技术细节 |
-| `ROADMAP.md` | 执行层：阶段路线与 todo-list |
-| `docs/jobs/` | 在制专题文档 |
-| `docs/legacy/` | 已完成任务归档 |
-| `docs/reports/` | 阶段报告与专项分析 |
-| `docs/work-notes/` | 工作日志与 session 记录 |
-
-默认主文档分工：
-
-- “怎么运行/结果去哪”优先看 `c.md` 或对应子项目 `c.md`
-- “当前结构边界与目录语义”优先看 `ARCHITECTURE.md`
-- “当前做什么/下一步做什么”优先看 `ROADMAP.md` 与 active `docs/jobs/`
-- “历史材料如何回捞”优先看 `docs/legacy/`
-- “当前决策证据与专题结论”优先看 `docs/reports/INDEX.md` 与对应 report
-```
-
-#### 2.2 docs/ARCHITECTURE.md
-
-```markdown
-# {项目名} 架构文档 (Architecture)
-
-> 实现框架文档：功能实现框架与技术细节说明。
-> 最近更新: {date}
-
----
-
-## 1. 系统总览
-
-{待补充}
-
-## 2. 模块结构
-
-{待补充}
-
-## 3. 数据流
-
-{待补充}
-
-## 4. 关键技术决策
-
-{待补充}
-
-## 5. 目录映射
-
-{根据实际目录结构填写}
-```
-
-#### 2.3 docs/ROADMAP.md
-
-```markdown
-# {项目名} 路线图 (Roadmap)
-
-> 路线图文档：阶段路线与 todo-list，推动项目实施。
-> 最近更新: {date}
-
----
-
-## Phase 0: 脚手架搭建
-
-- [ ] {待补充}
-
-## Phase 1: {待命名}
-
-- [ ] {待补充}
-
----
-
-## 相关导航
-
-- 在制任务：`docs/jobs/`
-- 历史归档：`docs/legacy/`
-- 阶段报告：`docs/reports/`
-- 工作日志：`docs/work-notes/`
-
----
-
-*创建日期: {date}*
-```
-
-#### 2.4 docs/jobs/README.md
-
-```markdown
-# docs/jobs — 在制任务文档区
-
-本目录存放当前仍在推进的任务文档和专题路线。
-
-## 使用规则
-
-1. 新任务先建在 `docs/jobs/`。
-2. `docs/jobs/` 中除本 `README.md` 外，建议最多只保留 3 份在制任务文档；若已达到上限，先合并、结案或归档旧文档，再新增。
-3. 每份 active job 建议显式维护：`状态 / 最近更新 / 本次完成 / 下一步 / 非目标`。
-4. 明显会形成新路线、新专题或新实验线的 active job，从 Day 1 开始维护最小可归档声明：`lifecycle / entrypoint / outputs / summary / smoke / freeze rule`。
-5. 任务完成后，将文档移动到 `docs/legacy/` 归档。
-
-## 推荐进度模板
-
-- `状态`: doing / blocked / done
-- `最近更新`: YYYY-MM-DD
-- `本次完成`: ...
-- `下一步`: ...
-- `非目标`: ...
-- `lifecycle`: active patch / reference extension / experimental attempt
-- `entrypoint`: ...
-- `outputs`: ...
-- `summary`: ...
-- `smoke`: ...
-- `freeze rule`: ...
-```
-
-#### 2.5 docs/legacy/README.md
-
-```markdown
-# docs/legacy — 已完成任务归档
-
-本目录存放已完成的任务文档。从 `docs/jobs/` 移入。
-
-文档仅供历史追溯参考，不再更新。若某份归档材料仍然承担当前治理职责，应把职责迁回核心文档，而不是继续在 legacy 中维持真相源。
-
-建议每条归档说明回答：这份材料是什么、为什么归档、现在应该去哪里看活文档。
-```
-
-#### 2.6 docs/reports/INDEX.md
-
-```markdown
-# reports 索引
-
-本目录存放仍支撑当前决策、实现理解或专题结论回看的正式报告。这里的条目默认不等权；只有仍然服务当前判断的问题，才应放在“当前优先阅读”区域。
-
-## 当前优先阅读
-
-{待补充}
-
-## 其余报告索引
-
-{待补充}
-
-## 使用建议
-
-1. 新增报告时在此索引中添加条目。
-2. 标注「当前优先阅读」帮助新读者快速定位。
-3. 想追踪当前做什么，不看 reports，转去 `../ROADMAP.md` 与 `../jobs/README.md`。
-```
-
-#### 2.7 docs/work-notes/INDEX.md
-
-```markdown
-# work-notes 索引
-
-本目录存放按时间推进的研发工作记录，用于保留实现过程与阶段判断。
-
-说明：较早的 work note 可能保留旧路径或历史命令，应视为当时上下文。
-
-## 按日期浏览
-
-{随项目推进自动更新}
-```
-
-#### 2.8 docs/theory/ (可选)
-
-仅在用户确认需要时创建：
-
-```markdown
-# theory — 理论推导与参考资料
-
-本目录存放与项目相关的理论推导、公式说明和外部参考文献。
-```
-
-#### 2.9 c.md (项目根目录)
-
-```markdown
-# {项目名} c.md
-
-## 常用运行命令
-
-```bash
-# {待补充}
-```
-
-## 结果路径
-
-- {待补充}
-
-## 常看目录
-
-- {待补充}
-```
-
-#### 2.10 Agents.md
-
-```markdown
-# {项目名} 项目约定
-
-## 工具链
-
-- {根据用户提供的工具链信息填写}
-
-## 项目结构
-
-- {根据实际目录填写}
-
-## 文档系统协同（人 + AI）
-
-### 核心三件（docs 根目录）
-
-`docs/` 根目录仅保留以下三份管理文档：
-
-1. `docs/BLUEPRINT.md`：战略性文档，负责项目宏观规划与理念阐述。
-2. `docs/ARCHITECTURE.md`：实现框架文档，负责功能实现框架与技术细节说明。
-3. `docs/ROADMAP.md`：路线图文档，负责阶段路线与 todo-list 建议。
-
-### 在制文档与归档
-
-1. 进行中的专题/任务文档统一放在 `docs/jobs/`。
-2. 每次任务推进后，及时更新 jobs 文档中的状态与下一步。
-3. 任务完成后，将文档移动到 `docs/legacy/`。
-
-### Day 1 可归档工作流
-
-当 AI 新增或扩展一条任务线、专题线或实验线时，应尽早补齐以下最小声明：
-
-1. `lifecycle`：`active patch` / `reference extension` / `experimental attempt`
-2. `entrypoint`：唯一运行入口
-3. `outputs`：固定输出目录或结果落点
-4. `summary`：最小结果摘要落点
-5. `smoke`：至少一个可复跑的最小验证命令
-6. `freeze rule`：晋升、保留或冻结条件
-
-### README 与操作清单分工
-
-1. `README.md` 负责项目能力、框架与核心导航，不放过长指令列表。
-2. 指令清单、目录索引、结果路径维护在各子项目的 `c.md`。
-
-## AI 开发约束
-
-在项目中新增或修改代码时，默认优先保证需求落地、可读性和回归稳定。
-
-若某个子目录下存在更贴近上下文的 `Agents.md`，则在遵守本文件通用约束的同时，优先遵循该子目录的局部规则。
-```
-
-#### 2.11 README.md
-
-仅当项目根目录不存在 README.md 时创建：
-
-```markdown
-# {项目名}
-
-{项目简述}
-
-## 文档导航
-
-| 文档 | 说明 |
-|------|------|
-| [蓝图](docs/BLUEPRINT.md) | 项目宏观规划与理念 |
-| [架构](docs/ARCHITECTURE.md) | 实现框架与技术细节 |
-| [路线图](docs/ROADMAP.md) | 阶段路线与进度 |
-| [操作清单](c.md) | 常用命令与路径索引 |
-
-## 快速开始
-
-{待补充}
-```
+| # | 目标文件 | 说明 | 模板 |
+|---|---------|------|------|
+| 2.1 | `docs/specs/BLUEPRINT.md` | 战略层：宏观规划、理念、技术路线与验收标准 | 读 `templates/BLUEPRINT.md.md`，填充占位符 |
+| 2.2 | `docs/specs/ARCHITECTURE.md` | 架构层：功能实现框架与关键技术细节 | 读 `templates/ARCHITECTURE.md.md`，填充占位符 |
+| 2.3 | `docs/specs/ROADMAP.md` | 执行层：阶段路线与 todo-list | 读 `templates/ROADMAP.md.md`，填充占位符 |
+| 2.4 | `docs/jobs/README.md` | 在制任务文档区使用规则与进度模板 | 读 `templates/jobs-README.md.md`，直接写入 |
+| 2.5 | `docs/legacy/README.md` | 已完成任务归档说明 | 读 `templates/legacy-README.md.md`，直接写入 |
+| 2.6 | `docs/reports/INDEX.md` | 经验沉淀索引（与 work-notes 边界说明） | 读 `templates/reports-INDEX.md.md`，填充占位符 |
+| 2.7 | `docs/work-notes/INDEX.md` | 经历记录索引 | 读 `templates/work-notes-INDEX.md.md`，直接写入 |
+| 2.8 | `docs/theory/README.md` | 理论推导与参考资料（可选，用户确认时才创建） | 读 `templates/theory-README.md.md`，直接写入 |
+| 2.9 | `c.md` | 操作清单：常用命令、结果路径、常看目录 | 读 `templates/c.md.md`，填充占位符 |
+| 2.10 | `Agents.md` | 人机协同约定（工具链、文档分工、AI 约束） | 读 `templates/Agents.md.md`，填充占位符 |
+| 2.11 | `README.md` | 项目能力与导航（仅当不存在时创建） | 读 `templates/README.md.md`，填充占位符 |
 
 ### Step 3: 汇报结果
 

@@ -1,9 +1,11 @@
 ---
 name: testing-sdk-models
-description: "Test Claude Agent SDK and OpenAI Agents SDK connectivity with third-party model providers (GLM, MiniMax, etc.). Use when asked to test SDK, test model, check API connection, or verify provider setup."
+description: "Test SDK connectivity with third-party model providers (GLM, MiniMax, etc.)."
 author: Henri
 created: "2026-03-15"
 ---
+
+> **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。
 
 # Testing SDK Models
 
