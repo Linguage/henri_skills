@@ -15,6 +15,7 @@ import re
 import sys
 import os
 import json
+import shutil
 import argparse
 from pathlib import Path
 from datetime import datetime
@@ -28,8 +29,19 @@ try:
 except ImportError:
     HAS_CV2 = False
 
+try:
+    from pillow_heif import register_heif_opener
+    register_heif_opener()
+    HAS_HEIF = True
+except ImportError:
+    HAS_HEIF = False
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 IMAGE_EXTS = {'.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.heic', '.tiff', '.bmp', '.avif'}
+
+_READ_LIMIT = 8 * 1024 * 1024  # 8 MB
+_THUMB_SIZE = (1600, 1600)
+_TRAILING_RE = re.compile(r'[\.\)\]\}\'\">,;]+$')
 
 RULES_FILE = SCRIPT_DIR / 'classification_rules.json'
 
@@ -136,14 +148,14 @@ def extract_urls_from_file(filepath):
 
     try:
         with open(path, 'rb') as f:
-            raw = f.read()
+            raw = f.read(_READ_LIMIT)
     except Exception:
         return urls
 
     found = set(re.findall(rb'https?://[^\x00-\x1f\s"<>]{10,300}', raw))
     for u in found:
         try:
-            decoded = u.decode('utf-8', errors='ignore').rstrip('.0+,;$&')
+            decoded = _TRAILING_RE.sub('', u.decode('utf-8', errors='ignore'))
             urls.append(decoded)
         except Exception:
             pass
@@ -153,7 +165,7 @@ def extract_urls_from_file(filepath):
         if hasattr(img, 'text') and img.text:
             for v in img.text.values():
                 for m in re.findall(r'https?://[^\s"<>]{10,300}', str(v)):
-                    urls.append(m.rstrip('.0+,;$&'))
+                    urls.append(_TRAILING_RE.sub('', m))
     except Exception:
         pass
 
@@ -191,6 +203,7 @@ def classify_by_metadata_urls(filepath, url_rules, url_skip_domains):
 def compute_visual_features(image_path):
     try:
         img = Image.open(image_path)
+        img.thumbnail(_THUMB_SIZE, Image.LANCZOS)
         rgb = img.convert('RGB')
         arr = np.array(rgb, dtype=np.float64)
         h, w = arr.shape[:2]
@@ -390,6 +403,9 @@ def get_target_dir(images_dir, category, subcategory):
 
 
 def print_report(results):
+    if not results:
+        print("No images to classify.")
+        return
     cat_width = max(len('Category'), max(len(r['category']) for r in results))
     sub_width = max(len('Sub'), max(len(r.get('subcategory') or '-') for r in results))
 
@@ -420,6 +436,7 @@ def print_summary(results):
 def move_files(results, images_dir):
     moved = 0
     errors = 0
+    root = Path(images_dir).resolve()
 
     for r in results:
         src = Path(r['filepath'])
@@ -432,6 +449,11 @@ def move_files(results, images_dir):
         if src.resolve() == dst.resolve():
             continue
 
+        if not dst.resolve().is_relative_to(root):
+            print(f'  SECURITY: target escapes root, skipping {src.name}')
+            errors += 1
+            continue
+
         if dst.exists():
             stem, suffix = src.stem, src.suffix
             counter = 1
@@ -440,7 +462,7 @@ def move_files(results, images_dir):
                 counter += 1
 
         try:
-            src.rename(dst)
+            shutil.move(str(src), str(dst))
             print(f'  {src.name} → {dst.relative_to(images_dir)}')
             moved += 1
         except Exception as e:
@@ -473,10 +495,6 @@ def main():
         images_dir = args.images_dir
     else:
         images_dir = os.path.join(os.getcwd(), '图片')
-        if not os.path.isdir(images_dir):
-            fallback = str(Path(SCRIPT_DIR).parent.parent.parent / '图片')
-            if os.path.isdir(fallback):
-                images_dir = fallback
 
     if not os.path.isdir(images_dir):
         print(f'ERROR: Directory not found: {images_dir}')

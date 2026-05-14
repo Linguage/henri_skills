@@ -59,7 +59,7 @@ ls -la ~/.config/opencode/skills 2>/dev/null
 对本仓库已存在的消费端目录，直接创建指向本仓库的符号链接：
 
 ```bash
-REPO="$HOME/Documents/ZCode/projects/henri_skills"
+REPO="$HOME/Documents/henri_skills"
 
 # Claude Code
 mkdir -p ~/.claude
