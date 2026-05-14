@@ -26,9 +26,15 @@ This is a Claude Code skills repository. Each subdirectory contains a skill with
 This repo is the source of truth. It is consumed via directory-level symlinks:
 
 ```
-~/.claude/skills/          → this repo
-~/.config/opencode/skills/ → this repo
-~/.agents/skills/          → this repo
+~/.claude/skills/          → this repo          # 全局
+~/.config/opencode/skills/ → this repo          # 全局
+~/.agents/skills/          → this repo          # 全局
+```
+
+Project-level symlinks are also supported (e.g., for workspace-specific skills):
+
+```
+<project>/.claude/skills/<skill-name> → this repo/<skill-name>/   # 项目级
 ```
 
 Do NOT edit skills in any symlinked directory — always edit here.

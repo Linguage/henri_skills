@@ -7,9 +7,11 @@
 ```
 henri_skills/                              ← 源仓库（本仓库）
   ↑
-~/.claude/skills/          → henri_skills/ ← 目录级符号链接
+~/.claude/skills/          → henri_skills/ ← 全局符号链接
 ~/.config/opencode/skills/ → henri_skills/
 ~/.agents/skills/          → henri_skills/
+
+<project>/.claude/skills/<skill>/ → henri_skills/<skill>/  ← 项目级符号链接
 ```
 
 - **henri_skills** 是所有 skills 的唯一源仓库，所有修改都在此进行
@@ -23,6 +25,7 @@ henri_skills/                              ← 源仓库（本仓库）
 |-------|------|------|
 | [ai-tools-management](ai-tools-management/) | henri | 扫描、清理、备份和卸载 macOS 上的 AI 开发工具 |
 | [doc-system-scaffold](doc-system-scaffold/) | henri | 一键搭建项目文档系统骨架 |
+| [organize-downloads](organize-downloads/) | henri | 整理 Downloads 目录：文件分类、书籍归档、图片来源识别、PDF 重命名 |
 | [testing-sdk-models](testing-sdk-models/) | henri | 测试 Claude Agent SDK 对各模型 provider 的连通性 |
 | [work-notes-pipeline](work-notes-pipeline/) | henri | 编写会话总结，或将工作笔记改写为叙述性文章 |
 
