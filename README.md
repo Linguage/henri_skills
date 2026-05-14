@@ -43,4 +43,4 @@ henri_skills/                              ← 源仓库（本仓库）
 1. 在本仓库下创建目录：`<skill-name>/SKILL.md`
 2. 含 YAML frontmatter（`name`、`description`、`author`、`created`）
 3. 在 frontmatter 后添加「单一来源」声明
-4. 通过符号链接自动对所有工具链生效
+4. 通过符号链接自动对所有工具链生效（配置方式详见 [Agents.md](Agents.md#配置方式)）
