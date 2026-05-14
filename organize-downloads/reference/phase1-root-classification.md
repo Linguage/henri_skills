@@ -13,7 +13,7 @@
 #### 图片 (.png, .jpg, .jpeg, .gif, .svg, .webp, .bmp, .heic, .tiff)
 使用三层分类系统（详见「第四阶段」），**必须通过 `classify_images.py` 脚本分类**：
 ```bash
-conda run -n henri_env python .claude/skills/organize-downloads/classify_images.py --scan-root
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/classify_images.py --scan-root
 ```
 - 先运行报告模式，确认分类结果后再加 `--move` 执行移动
 - Gemini nano 图片 (Gemini_Generated_Image_*) → `图片/AI生成图片/Gemini/` 或 `图片/gemini-nano/`

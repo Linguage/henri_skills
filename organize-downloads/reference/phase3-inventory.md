@@ -51,7 +51,7 @@
 
 1. **添加新论文**：移动 PDF 到对应子目录
 2. **编辑元数据**：在 `inventory.json` 中填充 `cn_title` 和 `author`
-3. **生成MD**：运行 `conda run -n henri_env python .claude/skills/organize-downloads/update_inventory.py`
+3. **生成MD**：运行 `conda run -n henri_env python .claude/skills/organize-downloads/scripts/update_inventory.py`
 4. **验证**：检查输出报告的 missing/incomplete 条目
 
 脚本会自动：

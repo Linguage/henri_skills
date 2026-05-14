@@ -33,16 +33,16 @@
 
 ```bash
 # 扫描并展示重命名方案（不执行）
-conda run -n henri_env python .claude/skills/organize-downloads/rename_pdfs.py --dir 书籍/(子目录)
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/rename_pdfs.py --dir 书籍/(子目录)
 
 # 确认后执行重命名
-conda run -n henri_env python .claude/skills/organize-downloads/rename_pdfs.py --dir 书籍/(子目录) --rename
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/rename_pdfs.py --dir 书籍/(子目录) --rename
 
 # 导出 JSON 结果
-conda run -n henri_env python .claude/skills/organize-downloads/rename_pdfs.py --dir 书籍/ --json 书籍/rename_report.json
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/rename_pdfs.py --dir 书籍/ --json 书籍/rename_report.json
 
 # 处理所有 PDF（包括已命名的）
-conda run -n henri_env python .claude/skills/organize-downloads/rename_pdfs.py --dir 书籍/ --all
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/rename_pdfs.py --dir 书籍/ --all
 ```
 
 ## 重命名工作流

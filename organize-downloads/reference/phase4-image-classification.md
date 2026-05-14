@@ -36,19 +36,19 @@
 
 ```bash
 # 步骤 1-3：生成分类报告
-conda run -n henri_env python .claude/skills/organize-downloads/classify_images.py
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/classify_images.py
 
 # 也可导出 JSON 结果
-conda run -n henri_env python .claude/skills/organize-downloads/classify_images.py --json 图片/classification_report.json
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/classify_images.py --json 图片/classification_report.json
 
 # 步骤 4：确认后执行移动
-conda run -n henri_env python .claude/skills/organize-downloads/classify_images.py --move
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/classify_images.py --move
 
 # 仅扫描根目录（不扫描其他图片/）
-conda run -n henri_env python .claude/skills/organize-downloads/classify_images.py --scan-root
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/classify_images.py --scan-root
 
 # 自定义设备白名单（EXIF 匹配用）
-conda run -n henri_env python .claude/skills/organize-downloads/classify_images.py --own-devices iPhone iPad "Xiaomi 14"
+conda run -n henri_env python .claude/skills/organize-downloads/scripts/classify_images.py --own-devices iPhone iPad "Xiaomi 14"
 ```
 
 ## 添加新规则

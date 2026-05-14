@@ -70,7 +70,7 @@ conda run -n henri_env python <script>
 ```bash
 conda create -n henri_env python=3.13
 conda activate henri_env
-pip install -r .claude/skills/organize-downloads/requirements.txt
+pip install -r .claude/skills/organize-downloads/scripts/requirements.txt
 ```
 
 `requirements.txt` 包含本 skill 所有脚本的额外依赖（opencv-python-headless、Pillow、numpy、PyMuPDF）。
