@@ -472,7 +472,11 @@ def main():
     if args.images_dir:
         images_dir = args.images_dir
     else:
-        images_dir = str(Path(SCRIPT_DIR).parent.parent.parent / '图片')
+        images_dir = os.path.join(os.getcwd(), '图片')
+        if not os.path.isdir(images_dir):
+            fallback = str(Path(SCRIPT_DIR).parent.parent.parent / '图片')
+            if os.path.isdir(fallback):
+                images_dir = fallback
 
     if not os.path.isdir(images_dir):
         print(f'ERROR: Directory not found: {images_dir}')

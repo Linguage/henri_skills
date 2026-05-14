@@ -166,7 +166,11 @@ def main():
         idx = sys.argv.index("--books-dir")
         books_dir = sys.argv[idx + 1]
     else:
-        books_dir = os.path.join(SCRIPT_DIR.parent.parent.parent, "书籍")
+        books_dir = os.path.join(os.getcwd(), "书籍")
+        if not os.path.isdir(books_dir):
+            fallback = os.path.join(SCRIPT_DIR.parent.parent.parent, "书籍")
+            if os.path.isdir(fallback):
+                books_dir = fallback
 
     if not os.path.isdir(books_dir):
         print(f"ERROR: books directory not found: {books_dir}")
