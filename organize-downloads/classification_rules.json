@@ -1,0 +1,216 @@
+{
+  "_meta": {
+    "description": "图片来源分类规则配置。被 classify_images.py 加载。",
+    "layers": ["filename", "exif", "metadata_url", "visual"],
+    "updated": "2026-05-14"
+  },
+
+  "filename_rules": [
+    {"group": "AI生成图片", "rules": [
+      {"pattern": "^ChatGPT Image .+", "flags": ["IGNORECASE"], "category": "AI生成图片", "subcategory": "ChatGPT", "confidence": 0.98, "evidence": "ChatGPT generated image filename"},
+      {"pattern": "^Gemini_Generated_Image_.+", "category": "AI生成图片", "subcategory": "Gemini", "confidence": 0.98, "evidence": "Gemini generated image filename"}
+    ]},
+    {"group": "社交平台图片/微信", "rules": [
+      {"pattern": "^微信图片_", "category": "社交平台图片", "subcategory": "微信", "confidence": 0.95, "evidence": "WeChat image (微信图片)"},
+      {"pattern": "^wechat_(?!md)", "category": "社交平台图片", "subcategory": "微信", "confidence": 0.90, "evidence": "WeChat export (wechat_)"},
+      {"pattern": "^mmexport", "category": "社交平台图片", "subcategory": "微信", "confidence": 0.90, "evidence": "WeChat media export (mmexport)"},
+      {"pattern": "^wechat_md_", "category": "社交平台图片", "subcategory": "微信", "confidence": 0.90, "evidence": "WeChat MD export (wechat_md_)"}
+    ]},
+    {"group": "社交平台图片/Telegram", "rules": [
+      {"pattern": "^photo_\\d+_[yw]\\.", "category": "社交平台图片", "subcategory": "Telegram", "confidence": 0.90, "evidence": "Telegram photo filename"},
+      {"pattern": "^photo_\\d+\\.", "category": "社交平台图片", "subcategory": "Telegram", "confidence": 0.75, "evidence": "Telegram-like photo filename"}
+    ]},
+    {"group": "社交平台图片/Twitter", "rules": [
+      {"pattern": "^G[A-Za-z0-9_~-]{8,}\\.", "category": "社交平台图片", "subcategory": "Twitter", "confidence": 0.85, "evidence": "Twitter/X media ID (G-prefix)"},
+      {"pattern": "^G\\d", "category": "社交平台图片", "subcategory": "Twitter", "confidence": 0.80, "evidence": "Twitter/X media ID (G-prefix)"},
+      {"pattern": "^HBTg", "category": "社交平台图片", "subcategory": "Twitter", "confidence": 0.85, "evidence": "Twitter/X media ID (HBTg)"},
+      {"pattern": "^HHfm", "category": "社交平台图片", "subcategory": "Twitter", "confidence": 0.85, "evidence": "Twitter/X media ID (HHfm)"},
+      {"pattern": "^twitter-", "category": "社交平台图片", "subcategory": "Twitter", "confidence": 0.95, "evidence": "Twitter download filename"},
+      {"pattern": "^twittershots-", "category": "社交平台图片", "subcategory": "Twitter", "confidence": 0.95, "evidence": "Twitter screenshot filename"}
+    ]},
+    {"group": "社交平台图片/知乎", "rules": [
+      {"pattern": "^v2-[a-f0-9]+_", "category": "社交平台图片", "subcategory": "知乎", "confidence": 0.85, "evidence": "Zhihu CDN filename"}
+    ]},
+    {"group": "截图", "rules": [
+      {"pattern": "^ScreenShot_", "flags": ["IGNORECASE"], "category": "截图", "subcategory": null, "confidence": 0.95, "evidence": "Screenshot filename (ScreenShot_)"},
+      {"pattern": "^Screenshot", "flags": ["IGNORECASE"], "category": "截图", "subcategory": null, "confidence": 0.95, "evidence": "Screenshot filename"},
+      {"pattern": "^屏幕截图", "category": "截图", "subcategory": null, "confidence": 0.95, "evidence": "Screenshot filename (Chinese)"},
+      {"pattern": "^clipboard_\\d", "flags": ["IGNORECASE"], "category": "截图", "subcategory": null, "confidence": 0.85, "evidence": "Clipboard paste image"}
+    ]},
+    {"group": "手机拍摄", "rules": [
+      {"pattern": "^IMG_\\d{8}_", "category": "手机拍摄", "subcategory": null, "confidence": 0.90, "evidence": "Phone camera photo (IMG_)"},
+      {"pattern": "^DSC_\\d+", "flags": ["IGNORECASE"], "category": "手机拍摄", "subcategory": null, "confidence": 0.85, "evidence": "Camera photo (DSC_)"},
+      {"pattern": "^dsc-\\d+", "category": "手机拍摄", "subcategory": null, "confidence": 0.80, "evidence": "Camera photo (dsc-)"}
+    ]},
+    {"group": "网络下载图片", "rules": [
+      {"pattern": "^maxresdefault", "flags": ["IGNORECASE"], "category": "网络下载图片", "subcategory": "YouTube缩略图", "confidence": 0.85, "evidence": "YouTube thumbnail"},
+      {"pattern": "^BingWallpaper", "flags": ["IGNORECASE"], "category": "网络下载图片", "subcategory": "壁纸", "confidence": 0.90, "evidence": "Bing wallpaper"},
+      {"pattern": "^1_[A-Za-z0-9_-]+", "category": "网络下载图片", "subcategory": "Medium", "confidence": 0.75, "evidence": "Medium article image"},
+      {"pattern": "^w\\d+d\\d+q\\d+", "category": "网络下载图片", "subcategory": null, "confidence": 0.70, "evidence": "Web-optimized image filename"},
+      {"pattern": "^art\\d+~", "category": "网络下载图片", "subcategory": null, "confidence": 0.70, "evidence": "Article image pattern"},
+      {"pattern": "^JB\\d+_", "category": "网络下载图片", "subcategory": null, "confidence": 0.65, "evidence": "Numbered photo filename"},
+      {"pattern": "wallpaper", "flags": ["IGNORECASE"], "category": "网络下载图片", "subcategory": "壁纸", "confidence": 0.70, "evidence": "Wallpaper keyword in filename"}
+    ]},
+    {"group": "学术与工程图片", "rules": [
+      {"pattern": "(?:irregularity|track_|rail_|psd_comparison|moving_load|wheel.rail|bridge_|structural|frequency|spectrum|waveform)", "flags": ["IGNORECASE"], "category": "学术与工程图片", "subcategory": null, "confidence": 0.80, "evidence": "Academic/engineering keyword"},
+      {"pattern": "(?:klein_bottle|simulation|scientific|diagram)", "flags": ["IGNORECASE"], "category": "学术与工程图片", "subcategory": null, "confidence": 0.75, "evidence": "Scientific keyword"}
+    ]},
+    {"group": "其他匹配", "rules": [
+      {"pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", "flags": ["IGNORECASE"], "category": "社交平台图片", "subcategory": null, "confidence": 0.70, "evidence": "UUID filename (platform download)"},
+      {"pattern": "^\\d{15,}\\.", "category": "社交平台图片", "subcategory": null, "confidence": 0.65, "evidence": "Numeric ID filename (social media)"},
+      {"pattern": "^unnamed", "category": "社交平台图片", "subcategory": null, "confidence": 0.55, "evidence": "Unnamed file (likely social media download)"},
+      {"pattern": "^[\\u4e00-\\u9fff].*\\.svg$", "flags": ["IGNORECASE"], "category": "网络下载图片", "subcategory": "插画", "confidence": 0.60, "evidence": "Chinese-named SVG (likely illustration)"}
+    ]}
+  ],
+
+  "exif_rules": {
+    "camera_tags": [
+      "Make", "Model", "DateTimeOriginal", "FocalLength",
+      "ExposureTime", "FNumber", "ISOSpeedRatings", "GPSInfo",
+      "LensModel", "LensMake", "Flash"
+    ],
+    "own_device_match": {
+      "category": "手机拍摄",
+      "subcategory": null,
+      "confidence": 0.95
+    },
+    "multi_tag_match": {
+      "min_tags": 3,
+      "category": "手机拍摄",
+      "subcategory": null,
+      "confidence": 0.80
+    },
+    "single_tag_match": {
+      "category": "手机拍摄",
+      "subcategory": null,
+      "confidence": 0.60
+    }
+  },
+
+  "metadata_url_rules": {
+    "_doc": "Layer 2.5: 从 EXIF/XMP/PNG text/raw bytes 中提取 URL，按域名匹配来源平台。domain 为正则，匹配到后输出对应分类。",
+    "skip_domains": [
+      "w3\\.org", "adobe\\.com", "iec\\.ch", "purl\\.org",
+      "iptc\\.org", "xmlns\\.com", "google\\.com/schema"
+    ],
+    "rules": [
+      {"domain": "notebooklm\\.google\\.com", "category": "网络下载图片", "subcategory": "NotebookLM", "confidence": 0.92, "evidence": "Source: Google NotebookLM"},
+      {"domain": "lh[0-9]*\\.googleusercontent\\.com", "category": "网络下载图片", "subcategory": "Google", "confidence": 0.80, "evidence": "Source: Google CDN (googleusercontent)"},
+      {"domain": "pbs\\.twimg\\.com", "category": "社交平台图片", "subcategory": "Twitter", "confidence": 0.92, "evidence": "Source: Twitter image CDN (pbs.twimg.com)"},
+      {"domain": "twitter\\.com", "category": "社交平台图片", "subcategory": "Twitter", "confidence": 0.88, "evidence": "Source: twitter.com"},
+      {"domain": "x\\.com", "category": "社交平台图片", "subcategory": "Twitter", "confidence": 0.88, "evidence": "Source: x.com"},
+      {"domain": "mmbiz\\.qpic\\.cn", "category": "社交平台图片", "subcategory": "微信", "confidence": 0.92, "evidence": "Source: WeChat CDN (mmbiz.qpic.cn)"},
+      {"domain": "wx\\.qq\\.com", "category": "社交平台图片", "subcategory": "微信", "confidence": 0.88, "evidence": "Source: WeChat (wx.qq.com)"},
+      {"domain": "telegram\\.org", "category": "社交平台图片", "subcategory": "Telegram", "confidence": 0.88, "evidence": "Source: Telegram"},
+      {"domain": "t\\.me", "category": "社交平台图片", "subcategory": "Telegram", "confidence": 0.88, "evidence": "Source: Telegram (t.me)"},
+      {"domain": "zhimg\\.com", "category": "社交平台图片", "subcategory": "知乎", "confidence": 0.92, "evidence": "Source: Zhihu CDN (zhimg.com)"},
+      {"domain": "zhihu\\.com", "category": "社交平台图片", "subcategory": "知乎", "confidence": 0.88, "evidence": "Source: zhihu.com"},
+      {"domain": "googleusercontent\\.com", "category": "网络下载图片", "subcategory": "Google", "confidence": 0.75, "evidence": "Source: Google CDN"},
+      {"domain": "google\\.[a-z]+", "category": "网络下载图片", "subcategory": "Google", "confidence": 0.70, "evidence": "Source: Google"},
+      {"domain": "chatgpt\\.com", "category": "AI生成图片", "subcategory": "ChatGPT", "confidence": 0.92, "evidence": "Source: ChatGPT"},
+      {"domain": "openai\\.com", "category": "AI生成图片", "subcategory": "ChatGPT", "confidence": 0.85, "evidence": "Source: OpenAI"},
+      {"domain": "gemini\\.google\\.com", "category": "AI生成图片", "subcategory": "Gemini", "confidence": 0.92, "evidence": "Source: Gemini"},
+      {"domain": "matplotlib\\.org", "category": "学术与工程图片", "subcategory": null, "confidence": 0.75, "evidence": "Generated by Matplotlib"},
+      {"domain": "medium\\.com", "category": "网络下载图片", "subcategory": "Medium", "confidence": 0.82, "evidence": "Source: Medium"},
+      {"domain": "arxiv\\.org", "category": "学术与工程图片", "subcategory": null, "confidence": 0.85, "evidence": "Source: arXiv"},
+      {"domain": "github(?:usercontent)?\\.com", "category": "网络下载图片", "subcategory": null, "confidence": 0.72, "evidence": "Source: GitHub"},
+      {"domain": "bing\\.com", "category": "网络下载图片", "subcategory": "壁纸", "confidence": 0.82, "evidence": "Source: Bing"},
+      {"domain": "unsplash\\.com", "category": "网络下载图片", "subcategory": "壁纸", "confidence": 0.82, "evidence": "Source: Unsplash"},
+      {"domain": "pexels\\.com", "category": "网络下载图片", "subcategory": "壁纸", "confidence": 0.82, "evidence": "Source: Pexels"},
+      {"domain": "youtube\\.com", "category": "网络下载图片", "subcategory": "YouTube", "confidence": 0.85, "evidence": "Source: YouTube"},
+      {"domain": "yt[0-9]*\\.ggpht\\.com", "category": "网络下载图片", "subcategory": "YouTube", "confidence": 0.85, "evidence": "Source: YouTube CDN"},
+      {"domain": "redd\\.it", "category": "社交平台图片", "subcategory": "Reddit", "confidence": 0.88, "evidence": "Source: Reddit"},
+      {"domain": "reddit(?:static)?\\.com", "category": "社交平台图片", "subcategory": "Reddit", "confidence": 0.85, "evidence": "Source: Reddit"},
+      {"domain": "weibo\\.(cn|com)", "category": "社交平台图片", "subcategory": "微博", "confidence": 0.88, "evidence": "Source: Weibo"},
+      {"domain": "xiaohongshu\\.com", "category": "社交平台图片", "subcategory": "小红书", "confidence": 0.88, "evidence": "Source: 小红书"},
+      {"domain": "douban(?:io)?\\.(com|com)", "category": "社交平台图片", "subcategory": "豆瓣", "confidence": 0.85, "evidence": "Source: Douban"},
+      {"domain": "bilibili\\.com", "category": "社交平台图片", "subcategory": "Bilibili", "confidence": 0.88, "evidence": "Source: Bilibili"},
+      {"domain": "cdn\\.sciencemag\\.org", "category": "学术与工程图片", "subcategory": null, "confidence": 0.82, "evidence": "Source: Science CDN"},
+      {"domain": "nature\\.com", "category": "学术与工程图片", "subcategory": null, "confidence": 0.82, "evidence": "Source: Nature"},
+      {"domain": "springer\\.com", "category": "学术与工程图片", "subcategory": null, "confidence": 0.80, "evidence": "Source: Springer"},
+      {"domain": "ieee[^.]*\\.org", "category": "学术与工程图片", "subcategory": null, "confidence": 0.80, "evidence": "Source: IEEE"},
+      {"domain": "pki\\.goog", "category": "AI生成图片", "subcategory": null, "confidence": 0.60, "evidence": "C2PA: Google (likely AI generated)"},
+      {"domain": "trufo\\.ai", "category": "AI生成图片", "subcategory": null, "confidence": 0.60, "evidence": "C2PA: Trufo (likely AI generated)"},
+      {"domain": "ssl\\.com.*c2pa", "category": "AI生成图片", "subcategory": null, "confidence": 0.60, "evidence": "C2PA: SSL.com (likely AI generated)"}
+    ]
+  },
+
+  "visual_rules": [
+    {
+      "name": "screenshot_wide",
+      "conditions": [
+        {"field": "flat_area_ratio", "op": ">", "value": 0.75},
+        {"field": "edge_density", "op": ">", "value": 0.04},
+        {"field": "aspect_ratio", "op": "between", "min": 1.3, "max": 2.2}
+      ],
+      "category": "截图",
+      "subcategory": null,
+      "confidence": 0.65,
+      "evidence": "Wide screenshot: aspect={aspect_ratio:.2f} flat={flat_area_ratio:.2f}"
+    },
+    {
+      "name": "screenshot_portrait",
+      "conditions": [
+        {"field": "flat_area_ratio", "op": ">", "value": 0.75},
+        {"field": "edge_density", "op": ">", "value": 0.04},
+        {"field": "aspect_ratio", "op": "<", "value": 0.65},
+        {"field": "height", "op": ">=", "value": 1600}
+      ],
+      "category": "截图",
+      "subcategory": null,
+      "confidence": 0.65,
+      "evidence": "Portrait screenshot: aspect={aspect_ratio:.2f} flat={flat_area_ratio:.2f}"
+    },
+    {
+      "name": "document_infographic",
+      "conditions": [
+        {"field": "brightness", "op": ">", "value": 190},
+        {"field": "edge_density", "op": ">", "value": 0.06}
+      ],
+      "category": "网络下载图片",
+      "subcategory": "信息图",
+      "confidence": 0.55,
+      "evidence": "Bright ({brightness:.0f}) + dense edges ({edge_density:.4f})"
+    },
+    {
+      "name": "meme_sticker",
+      "conditions": [
+        {"field": "width", "op": "<=", "value": 1200, "max_field": "height"},
+        {"field": "aspect_ratio", "op": "between", "min": 0.7, "max": 1.3}
+      ],
+      "category": "社交平台图片",
+      "subcategory": "表情包",
+      "confidence": 0.50,
+      "evidence": "Small square-ish ({width}x{height})"
+    },
+    {
+      "name": "high_edge_density",
+      "conditions": [
+        {"field": "edge_density", "op": ">", "value": 0.12}
+      ],
+      "category": "网络下载图片",
+      "subcategory": null,
+      "confidence": 0.40,
+      "evidence": "Very high edge density ({edge_density:.4f})"
+    },
+    {
+      "name": "low_contrast_natural",
+      "conditions": [
+        {"field": "contrast", "op": "<", "value": 25},
+        {"field": "edge_density", "op": "<", "value": 0.05}
+      ],
+      "category": "网络下载图片",
+      "subcategory": null,
+      "confidence": 0.40,
+      "evidence": "Low contrast ({contrast:.0f}) + low edges"
+    }
+  ],
+
+  "default_fallback": {
+    "category": "其他图片",
+    "confidence": 0.3,
+    "evidence": "No matching pattern found"
+  },
+
+  "own_devices": ["iPhone", "iPad"]
+}
