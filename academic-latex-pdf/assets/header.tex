@@ -1,0 +1,27 @@
+% Academic Chinese reading profile for Pandoc + ctexart + XeLaTeX.
+\usepackage{indentfirst}
+\usepackage{enumitem}
+\setCJKmainfont[
+  AutoFakeSlant=0.18
+]{Noto Serif CJK SC}
+\setCJKsansfont[
+  AutoFakeSlant=0.18
+]{Noto Sans CJK SC}
+\setCJKmonofont{Noto Sans CJK SC}
+\newCJKfontfamily\quotezh{LXGW WenKai}
+\AtBeginDocument{\zihao{-4}}
+\setlength{\parindent}{2em}
+\setlength{\parskip}{0.35em plus 0.1em minus 0.1em}
+\setlist{itemsep=0.25em, topsep=0.4em}
+\ctexset{
+  section = {
+    format = \Large\bfseries,
+    beforeskip = 2.2ex plus 0.5ex minus 0.2ex,
+    afterskip = 1.2ex plus 0.2ex
+  },
+  subsection = {
+    format = \large\bfseries,
+    beforeskip = 1.8ex plus 0.4ex minus 0.2ex,
+    afterskip = 0.8ex plus 0.2ex
+  }
+}

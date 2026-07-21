@@ -1,0 +1,4 @@
+interface:
+  display_name: "Academic LaTeX PDF"
+  short_description: "将学术 Markdown 语义排版为 LaTeX 与 PDF"
+  default_prompt: "Use $academic-latex-pdf to convert this scholarly Markdown document into a polished, verified LaTeX PDF."

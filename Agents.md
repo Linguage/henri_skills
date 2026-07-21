@@ -1,6 +1,6 @@
 # Agents.md
 
-This is a Claude Code skills repository. Each subdirectory contains a skill with a `SKILL.md` file.
+This is the personal AI agent skills repository (`henri_skills`). Each subdirectory contains a skill with a `SKILL.md` file. The repo is the single source of truth for Claude Code, OpenCode, `.agents`, and Codex user skills.
 
 ## Conventions
 
@@ -13,13 +13,18 @@ This is a Claude Code skills repository. Each subdirectory contains a skill with
 
 ## Skills project management (this repo)
 
-- **Single source of truth**: edit skills only in this repository, never in symlinked directories (`~/.claude/skills/`, `~/.config/opencode/skills/`, `~/.agents/skills/`).
+- **Single source of truth**: edit skills only in this repository, never in symlinked directories (`~/.claude/skills/`, `~/.config/opencode/skills/`, `~/.agents/skills/`, `~/.codex/skills/<skill>/`).
 - **Frontmatter — originals**: set `author: Henri`, plus `created` (first commit date for that `SKILL.md`) and `last_updated` when applicable (see README for the `2026-04-12` exclusion rule).
 - **Frontmatter — third-party**: keep `source`, `author` (upstream maintainer), and `modifications` (note that the skill may have been changed from upstream); same `created` / `last_updated` rules as above.
-- **Description**: keep under 12 words. State WHAT the skill does, not capabilities or supported formats.
+- **Description**: keep under 12 words when practical. State WHAT the skill does, not capabilities or supported formats. Longer trigger text is acceptable only when matching quality requires it.
 - **Externalize bulk content**: templates, prompts, and reference data go in subdirectories (`templates/`, `prompts/`, `references/`); SKILL.md only contains workflow and rules.
 - **README**: when adding or reclassifying a skill, update `README.md` — list originals vs third-party in the two tables and keep them accurate.
+- **Codex linking**: after adding a skill that Codex must load, create `~/.codex/skills/<skill-name> → this repo/<skill-name>/` and note it in README if the linked set changes.
 - **Attribution**: do not duplicate long attribution in skill bodies; upstream and modification intent live in frontmatter (and README tables for discovery).
+
+Recommended「单一来源」wording:
+
+> **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/`、`~/.codex/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。
 
 ## Symlink Chain
 
@@ -31,10 +36,17 @@ This repo is the source of truth. It is consumed via directory-level symlinks:
 ~/.agents/skills/          → this repo          # 全局
 ```
 
+Codex keeps `~/.codex/skills/.system` for platform skills, so user skills are linked per skill:
+
+```
+~/.codex/skills/<skill-name> → this repo/<skill-name>/   # Codex
+```
+
 Project-level symlinks are also supported (e.g., for workspace-specific skills):
 
 ```
 <project>/.claude/skills/<skill-name> → this repo/<skill-name>/   # 项目级
+~/Downloads/.claude/skills/organize-downloads → this repo/organize-downloads/
 ```
 
 Do NOT edit skills in any symlinked directory — always edit here.
@@ -45,13 +57,14 @@ Do NOT edit skills in any symlinked directory — always edit here.
 
 ### 1. 检测已有目录
 
-先检查设备上是否已有用户级配置目录：
-
 ```bash
-# 检查三个全局消费路径
+# 全局目录级消费路径
 ls -la ~/.claude/skills 2>/dev/null
 ls -la ~/.agents/skills 2>/dev/null
 ls -la ~/.config/opencode/skills 2>/dev/null
+
+# Codex（保留真实目录 + .system；用户 skill 为子项软链接）
+ls -la ~/.codex/skills 2>/dev/null
 ```
 
 ### 2. 创建全局符号链接
@@ -59,7 +72,7 @@ ls -la ~/.config/opencode/skills 2>/dev/null
 对本仓库已存在的消费端目录，直接创建指向本仓库的符号链接：
 
 ```bash
-REPO="$HOME/Documents/henri_skills"
+REPO="$HOME/settings/henri_skills"
 
 # Claude Code
 mkdir -p ~/.claude
@@ -86,7 +99,23 @@ mkdir -p <project>/.claude/skills
 ln -s "$REPO/health" <project>/.claude/skills/health
 ```
 
-### 4. organize-downloads 的特殊配置
+### 4. Codex 按 skill 软链接
+
+Codex 的 `~/.codex/skills/` 不能整目录替换（需保留 `.system`）。对需要在 Codex 中使用、且已纳入本仓库的 skill，按名称创建软链接：
+
+```bash
+mkdir -p ~/.codex/skills
+
+# 当前已纳入并建议链接的示例
+ln -s "$REPO/henri-writing-style" ~/.codex/skills/henri-writing-style
+
+# 其他 skill 按同样模式追加，例如：
+# ln -s "$REPO/academic-latex-pdf" ~/.codex/skills/academic-latex-pdf
+```
+
+不要把 Codex 专属的 `.system` 技能迁入本仓库。用户自建 skill 若仍只存在于 `~/.codex/skills/`，应迁入本仓库后再改软链接。
+
+### 5. organize-downloads 的特殊配置
 
 `organize-downloads` skill 需要在 `~/Downloads` 目录下工作。为了让 agent 在 Downloads 目录中自动发现该 skill，在 Downloads 下创建 `.claude/skills/` 并链接：
 
@@ -106,6 +135,9 @@ ln -s "$REPO/organize-downloads" ~/Downloads/.claude/skills/organize-downloads
 readlink ~/.claude/skills
 readlink ~/.agents/skills
 readlink ~/.config/opencode/skills
+
+# Codex 按 skill 链接
+readlink ~/.codex/skills/henri-writing-style
 
 # Downloads 项目级链接
 readlink ~/Downloads/.claude/skills/organize-downloads
