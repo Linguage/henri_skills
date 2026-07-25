@@ -1,6 +1,8 @@
-# 2.5 阶段：PDF 论文重命名
+# 2.5 阶段：PDF 论文重命名 + arXiv 重复检测
 
-将文件名不直观的 PDF 论文，按 `第一作者姓_发表年份_短标题.pdf` 格式重命名。
+将文件名不直观的 PDF 论文，按 `第一作者姓_发表年份_短标题.pdf` 格式重命名。同时检测 arXiv 预印本是否与已有图书重复。
+
+> 本阶段处理的 `论文/` 与用于对照的 `书籍/` 默认位于本地暂存根目录（通常为 `Documents/`），不是 Downloads 中的长期目录。
 
 ## 命名格式
 
@@ -33,24 +35,56 @@
 
 ```bash
 # 扫描并展示重命名方案（不执行）
-conda run -n henri_env python .claude/skills/organize-downloads/scripts/rename_pdfs.py --dir 书籍/(子目录)
+python <skill-dir>/scripts/rename_pdfs.py --dir 论文/(子目录)
 
 # 确认后执行重命名
-conda run -n henri_env python .claude/skills/organize-downloads/scripts/rename_pdfs.py --dir 书籍/(子目录) --rename
+python <skill-dir>/scripts/rename_pdfs.py --dir 论文/(子目录) --rename
 
 # 导出 JSON 结果
-conda run -n henri_env python .claude/skills/organize-downloads/scripts/rename_pdfs.py --dir 书籍/ --json 书籍/rename_report.json
+python <skill-dir>/scripts/rename_pdfs.py --dir 论文/ --json 论文/rename_report.json
 
 # 处理所有 PDF（包括已命名的）
-conda run -n henri_env python .claude/skills/organize-downloads/scripts/rename_pdfs.py --dir 书籍/ --all
+python <skill-dir>/scripts/rename_pdfs.py --dir 论文/ --all
 ```
+
+## arXiv 重复检测（重要）
+
+arXiv 预印本经常与正式出版的图书内容相同（作者把书稿先发到 arXiv）。重命名 arXiv 时**必须检查**：
+
+1. **用 `rename_pdfs.py --dry-run` 提取 arXiv 的标题和作者**
+2. **在 `书籍/` 下搜索是否有同名/同作者的图书**
+3. **若发现重复**：
+   - 标注 `(arXiv预印本)` 后缀，避免与正式版混淆
+   - 提示用户决定是否移到 `书籍/待确认重复/` 或 `论文/{对应主题}/`
+
+### 重复检测示例
+
+```
+原文件: 2102.05242v2.pdf
+提取结果: Recht_2021_Patterns, Predictions, and Actions
+
+检查: 书籍/AI工程与实践/ 下是否存在 Recht_*_Patterns*
+发现: Recht_2024_Patterns, Predictions, and Actions.pdf（2024 正式版）
+
+处理:
+  重命名为: Recht_2021_Patterns, Predictions, and Actions (arXiv预印本).pdf
+  保留位置: 论文/AI工程与实践/（让用户决定后续）
+  报告: 与 书籍/AI工程与实践/Recht_2024_... 同书，arXiv 是 2021 预印本
+```
+
+### 重复判定的容错
+
+- **作者姓名相同 + 标题相似度 > 0.8** → 视为重复候选
+- **年份不同**（如 arXiv 2021 vs 正式版 2024）→ 标注但不删除
+- **标题完全相同 + 同年份** → 高度怀疑完全重复，强烈建议移到 `待确认重复/`
 
 ## 重命名工作流
 
 1. **扫描目标文件**：用脚本扫描指定目录，筛选出需要重命名的 PDF
-2. **展示重命名方案**：列出完整映射表，等待用户确认
-3. **执行重命名**：用户确认后加 `--rename` 执行
-4. **更新书籍清单**：重命名完成后必须同步更新 `书籍清单.md`（见第三阶段）
+2. **dry-run 展示方案**：列出完整映射表，包含 arXiv 重复检测结果
+3. **用户确认 arXiv 重复处理方式**：删除 / 移到 待确认重复 / 标注保留
+4. **执行重命名**：用户确认后加 `--rename` 执行
+5. **避免劣化已命名文件**：对于 `DeepSeek_2026_DeepSeek-V4.pdf` 这类已命名的文件，重命名可能反而变差（如改成 `2026_DeepSeek-V4 -.pdf`），用 `--target-unknown` 只处理未知文件，或手动跳过
 
 ## 注意事项
 
@@ -58,3 +92,5 @@ conda run -n henri_env python .claude/skills/organize-downloads/scripts/rename_p
 - **保留原文件扩展名**：`.pdf` 不可更改
 - **中文论文**：姓氏取前 1-2 个汉字（如 `宋`、`欧阳`），标题保持中文
 - **arXiv 论文**：年份可从 ID 推算（如 `2603` = 2026 年 3 月）
+- **手动优先**：rename_pdfs.py 的启发式不完美。对于 3 个以内 arXiv 文件，建议手动 `mv` 重命名，避免批量重命名误伤已命名的文件
+- **跳过乱码**：rename_pdfs.py 无法处理文件名编码错乱（如 `<=AB@B>@_...`）的文件，这类用 PyMuPDF 读首页文本手动判断后重命名

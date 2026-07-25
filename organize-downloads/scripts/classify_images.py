@@ -8,7 +8,7 @@ Three-layer classification (rules loaded from classification_rules.json):
   Layer 3: Visual features (edge density, brightness, contrast, flat areas)
 
 Usage:
-    conda run -n henri_env python classify_images.py [options]
+    python classify_images.py [options]
 """
 
 import re

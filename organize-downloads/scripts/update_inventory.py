@@ -13,27 +13,39 @@ from urllib.parse import quote
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 DEFAULT_CATEGORY_ORDER = [
-    "铁路与交通工程", "AI理论与基础模型", "AI Agent与智能体",
-    "科技人文与数学", "AI工程与实践",
+    "数学与物理", "思想与人文", "铁路与交通工程",
+    "AI工程与实践", "计算机科学与软件工程", "金融与商业",
 ]
 
 DEFAULT_CATEGORY_LABELS = {
+    "数学与物理": "数学与物理",
+    "思想与人文": "思想与人文",
     "铁路与交通工程": "铁路与交通工程",
-    "AI理论与基础模型": "AI 理论与基础模型",
-    "AI Agent与智能体": "AI Agent 与智能体",
-    "科技人文与数学": "科技人文与数学",
     "AI工程与实践": "AI 工程与实践",
+    "计算机科学与软件工程": "计算机科学与软件工程",
+    "金融与商业": "金融与商业",
 }
 
-ACCEPTED_EXTS = {'.pdf', '.epub', '.mobi', '.azw3', '.docx'}
+ACCEPTED_EXTS = {'.pdf', '.epub', '.mobi', '.azw3', '.docx', '.djvu'}
 
 _EXT_LABEL = {'.epub': 'EPUB', '.mobi': 'MOBI', '.azw3': 'AZW3',
-              '.docx': 'DOCX', '.pdf': 'PDF'}
+              '.docx': 'DOCX', '.pdf': 'PDF', '.djvu': 'DJVU'}
 
 
 def esc(s):
     """URL-encode path segments."""
     return quote(s, safe='/')
+
+
+def md_link(label, rel_path):
+    """生成 Markdown 链接，保留中文可读（仅在特殊字符时用 <...> 包裹）。
+
+    - 不做 URL 编码，让链接保持中文可读
+    - 含空格/括号等特殊字符时，用 <...> 包裹避免 Markdown 解析问题
+    """
+    if any(c in rel_path for c in (' ', '(', ')', '<', '>', '[', ']', '`', '\\')):
+        return f"[{label}](<{rel_path}>)"
+    return f"[{label}]({rel_path})"
 
 
 def atomic_write(path, content):
@@ -48,9 +60,35 @@ def atomic_write(path, content):
 
 
 def scan_disk(books_dir, cat_order=None):
-    """Return {category: [filename, ...]} for all supported files on disk."""
+    """递归发现图书类别，并返回 {相对目录: [文件名, ...]}。
+
+    `杂志/`、重复与归档审核目录是独立管理维度，不纳入图书 inventory。
+    每个含受支持文件的目录都是一个类别，因此可处理 `人物/姓名`、
+    `大文件/主题` 等多级目录。
+    """
+    excluded_roots = {"杂志", "待确认重复", "重复", "已归档"}
+    discovered = []
+    for dirpath, dirnames, filenames in os.walk(books_dir):
+        rel = os.path.relpath(dirpath, books_dir)
+        if rel == ".":
+            dirnames[:] = [
+                d for d in dirnames
+                if not d.startswith(".") and d not in excluded_roots
+            ]
+            continue
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
+        if any(
+            not f.startswith(".") and Path(f).suffix.lower() in ACCEPTED_EXTS
+            for f in filenames
+        ):
+            discovered.append(rel)
+
+    iter_order = list(cat_order or [])
+    for cat in sorted(discovered):
+        if cat not in iter_order:
+            iter_order.append(cat)
+
     disk = {}
-    iter_order = cat_order if cat_order else sorted(os.listdir(books_dir))
     for cat in iter_order:
         if cat.startswith('.'):
             continue
@@ -59,7 +97,7 @@ def scan_disk(books_dir, cat_order=None):
             continue
         files = sorted([
             f for f in os.listdir(path)
-            if not f.startswith('.') and any(f.lower().endswith(e) for e in ACCEPTED_EXTS)
+            if not f.startswith('.') and Path(f).suffix.lower() in ACCEPTED_EXTS
         ])
         disk[cat] = files
     return disk
@@ -101,8 +139,8 @@ def reconcile(inventory, disk, books_dir, cat_order):
         inventory["_meta"] = {}
     inventory["_meta"]["generated"] = today
     inventory["_meta"]["total_docs"] = total
-    if "categories" not in inventory["_meta"] or not isinstance(inventory["_meta"]["categories"], list):
-        inventory["_meta"]["categories"] = cat_order
+    inventory["_meta"]["categories"] = cat_order
+    inventory["_meta"]["total_categories"] = len(categories)
 
     return inventory, new_files, missing_files
 
@@ -115,9 +153,9 @@ def build_markdown(inventory, cat_order, cat_labels):
     total = sum(len(v) for v in categories.values())
 
     lines = [
-        "# 书籍与论文清单",
+        "# 书籍清单",
         "",
-        f"> 自动生成于 {today}，共 {total} 篇文档，分 {len(categories)} 个目录。",
+        f"> 自动生成于 {today}，共 {total} 本图书，分 {len(categories)} 个目录。",
         "",
         "---",
         "",
@@ -130,7 +168,7 @@ def build_markdown(inventory, cat_order, cat_labels):
             continue
         label = cat_labels.get(cat, cat)
         section_num += 1
-        lines.append(f"## {section_num}. {label}（{len(entries)} 篇）")
+        lines.append(f"## {section_num}. {label}（{len(entries)} 本）")
         lines.append("")
         lines.append("| # | 标题 | 作者 | 文件 |")
         lines.append("|---|------|------|------|")
@@ -142,7 +180,7 @@ def build_markdown(inventory, cat_order, cat_labels):
             author = entry.get("author", "") or "—"
             filename = entry["filename"]
             ext = _EXT_LABEL.get(Path(filename).suffix.lower(), 'FILE')
-            link = f"[{ext}]({esc(cat)}/{esc(filename)})"
+            link = md_link(ext, f"{cat}/{filename}")
             cn_title = cn_title.replace("|", "/").replace("\n", " ").replace("\r", " ")
             author = author.replace("|", "/").replace("\n", " ").replace("\r", " ")
             lines.append(f"| {i} | {cn_title} | {author} | {link} |")
@@ -160,12 +198,12 @@ def build_markdown(inventory, cat_order, cat_labels):
             name = entry.get("name", "")
             issues = entry.get("issues", "")
             files = entry.get("files", [])
-            links = " · ".join(f"[{f['ext']}]({quote(f['link'], safe='/')})" for f in files)
+            links = " · ".join(md_link(f['ext'], f['link']) for f in files)
             lines.append(f"| {i} | {name} | {issues} | {links} |")
         lines.append("")
 
     lines.append("---")
-    lines.append(f"*共 {total} 篇，{len([c for c in cat_order if c in categories])} 个目录。*")
+    lines.append(f"*共 {total} 本图书，{len([c for c in cat_order if c in categories])} 个目录。*")
     lines.append("")
 
     return "\n".join(lines)
@@ -180,11 +218,15 @@ def main():
     if args.books_dir:
         books_dir = args.books_dir
     else:
-        books_dir = os.path.join(os.getcwd(), "书籍")
-        if not os.path.isdir(books_dir):
-            fallback = os.path.join(SCRIPT_DIR.parent.parent.parent, "书籍")
-            if os.path.isdir(fallback):
-                books_dir = fallback
+        cwd = Path.cwd()
+        candidates = []
+        if cwd.name == "书籍":
+            candidates.append(cwd)
+        candidates.extend([
+            Path.home() / "Documents" / "书籍",
+            cwd / "书籍",  # 兼容旧用法与用户指定的工作根目录
+        ])
+        books_dir = str(next((p for p in candidates if p.is_dir()), candidates[0]))
 
     if not os.path.isdir(books_dir):
         print(f"ERROR: books directory not found: {books_dir}")
@@ -200,10 +242,16 @@ def main():
 
     meta = inventory.setdefault("_meta", {})
 
-    cat_order = meta.get("categories", DEFAULT_CATEGORY_ORDER)
+    cat_order = list(meta.get("categories", DEFAULT_CATEGORY_ORDER))
+    for cat in inventory.get("categories", {}):
+        if cat not in cat_order:
+            cat_order.append(cat)
     cat_labels = meta.get("category_labels", DEFAULT_CATEGORY_LABELS)
 
     disk = scan_disk(books_dir, cat_order)
+    for cat in disk:
+        if cat not in cat_order:
+            cat_order.append(cat)
     inventory, new_files, missing_files = reconcile(inventory, disk, books_dir, cat_order)
 
     md_content = build_markdown(inventory, cat_order, cat_labels)

@@ -4,7 +4,7 @@
 改进版：多策略作者/标题提取、中文支持、扫描件检测、回退保护。
 
 Usage:
-    conda run -n henri_env python rename_pdfs.py [--dir PATH] [--rename] [--json PATH] [--all] [--target-unknown]
+    python rename_pdfs.py [--dir PATH] [--rename] [--json PATH] [--all] [--target-unknown]
 """
 
 import fitz

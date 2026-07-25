@@ -1,0 +1,304 @@
+# 第三阶段：书籍主题归类（仅针对图书）
+
+经过第二阶段分流后，`书籍/` 下只剩真正的图书（EPUB、教材、专著、大众读物）。本阶段对这部分图书按主题进一步归类到子目录。
+
+> 本文件中的 `书籍/` 相对于本地暂存根目录（通常为 `Documents/`）。Downloads 只承载尚未完成归位的批次。
+
+> **前置条件**：第二阶段已完成，论文/报告/讲义/规章已分流出去。
+
+## 一、推荐目录结构（权威标准，迁移时按此组织）
+
+```
+书籍/
+├── 数学与物理/          # 数学/物理/数理交叉的专著、教材、科普传记
+├── 思想与人文/          # 哲学、传记、心理学、大众科普、宗教、文学
+├── AI工程与实践/        # ML/CS 工程经典、实用指南、用户手册
+├── 计算机科学与软件工程/ # 计算机科学、编程语言、系统与软件工程
+├── 铁路与交通工程/      # 铁路/桥梁/轨道工程专著、教材、设计手册
+├── 金融与商业/          # 商业、金融、投资、创业与管理
+├── 人物/                # 按人名分子目录，收录该人物的全部著作/传记/通信
+├── 丛书/                # 按正式丛书或系列名分子目录，收录各卷及不同版本
+├── 杂志/                # 报纸期刊，按刊名再分子目录（见下）
+├── 大文件/              # 主要收纳扫描版，内部按主题再分；不按固定体积阈值归类
+├── inventory.json       # 主数据库（唯一数据源）
+├── 书籍清单.md          # 由脚本生成的可读清单
+└── translations.json    # 中英译名映射（可选）
+```
+
+### 主题子目录详细说明
+
+| 子目录 | 收录范围 | 典型示例 | 当前规模参考 |
+|--------|---------|---------|----|
+| **数学与物理/** | 数学/物理/力学/几何/拓扑的专著、教材、讲义、数学史 | Hatcher 代数拓扑、Strang 线性代数、Needham 可视化微分几何、Kaiser 小波指南、Sandifer Euler 系列 | ~50 本 |
+| **思想与人文/** | 哲学、传记、心理学、大众科普、宗教、文学、写作指南 | Kahneman、Sivers、爱因斯坦传、康德编著（Cambridge Companion）、Waldrop、Hartnett、圣经 | ~50 本 |
+| **AI工程与实践/** | ML/CS 工程经典、实用指南、用户手册、技术参考 | Kleppmann DDIA、SICP、Mastering Shell、Gemini Prompting Guide、Reddi MLS、Recht | ~25-30 本 |
+| **铁路与交通工程/** | 铁路/桥梁/轨道工程相关的专著、教材、设计手册 | 翟婉明 *车辆-轨道耦合动力学*、桥梁工程手册 | 1-5 本 |
+| **金融与商业/** | 商业、金融、投资、创业、管理及商业人物读物 | 创业管理、市场史、投资与交易实务 | 按实际数量 |
+
+### 铁路与交通工程边界
+
+- 车辆—轨道耦合、机车车辆、轨道、铁路桥梁、交通基础设施及直接服务于这些系统的结构动力学、抗震和可靠度图书归入 `铁路与交通工程/`。
+- 完全通用的理论力学、弹性理论、有限元和结构分析优先归入 `数学与物理/`。
+- 只有通用工程图书形成稳定集合时才新增 `工程科学/`，不要提前创建空类别。
+
+### 杂志/ 子目录（按刊名细分）
+
+```
+杂志/
+├── Apple Magazine/
+├── Barron's/
+├── Discover/
+├── Linux Complete Manual/
+├── MIT Technology Review/
+├── National Geographic/
+├── New Scientist/
+├── New York Times Book Review/
+├── Newsweek/
+├── Science/
+├── The Atlantic/
+├── The Economist/
+├── The New Yorker/
+├── The Paris Review/
+├── Time/
+├── Wall Street Journal Magazine/
+└── Wired/
+```
+
+> 注：`update_inventory.py` 递归发现图书类别，但明确排除 `杂志/` 与 `待确认重复/`。杂志信息如需进入清单，应通过 inventory 的 magazines 字段单独维护。
+
+## 二、为什么是这三个主题子目录
+
+经过实际整理发现：
+1. **数学与物理** 和 **思想与人文** 应当分开，因为前者是学科教材/专著（研究向），后者是大众读物/传记/哲学（兴趣向）
+2. **AI工程与实践** 单独成目录，因为这是用户的研究工具栈，与纯数学物理或人文阅读性质不同
+3. 避免"科技人文与数学"这种过宽的目录（原 100+ 文件混杂不利于检索）
+
+### 历史教训：宽泛目录的拆分原则
+
+```
+科技人文与数学/  (过宽，废弃)
+   ↓ 拆分为
+├── 数学与物理/      # 学科性强的数理内容
+└── 思想与人文/      # 哲学/传记/文学/科普等人文内容
+```
+
+**判断标准**：
+- 数学/物理专著、教材、力学讲义 → `数学与物理/`
+- 哲学、传记、心理学、大众科学、宗教、文学 → `思想与人文/`
+- 即使书名带"数学"二字，若讲的是数学思维/数学史/数学家传记（如《数学觉醒》），归到 `思想与人文/`
+
+## 三、归类工作流
+
+1. **扫描书籍目录**：递归列出 `书籍/` 下所有 PDF 和 EPUB（不含分流走的）
+2. **提取主题信息**：
+   - 优先读取文件名中已有的标题信息
+   - 标题不明确的，用 PyMuPDF 提取首页文本和元数据
+   - 参考 inventory.json 中已有的 `cn_title`、`author` 字段
+3. **自动分类**：根据关键词匹配将图书分配到预设类别
+4. **讨论歧义图书**：对无法明确归类的，列出清单询问用户
+   ```
+   以下图书无法自动归类，请确认：
+   | # | 文件 | 标题 | 建议类别 | 说明 |
+   |---|------|------|---------|------|
+   | 1 | XXX.pdf | ... | 数学与物理? 思想与人文? | 数学思维觉醒，但偏人文 |
+   ```
+5. **确认并执行**：展示完整方案，等待用户确认后执行 `mv`
+6. **更新 inventory.json 和 书籍清单.md**：
+   - 类目改名时，脚本按文件实际位置归类目，保留 cn_title/author 元数据
+   - 删除空类目（同时从 `_meta.categories` 移除）
+   - 重跑 `update_inventory.py`
+
+### 扫描版与“大文件”判断
+
+`大文件/` 主要表示扫描属性，不使用 10MB、50MB 等固定体积阈值。按以下顺序判断：
+
+1. 检查前若干页的文本长度、页面图像覆盖率和字体对象；多数页面为整页图像且文本层为空、极短或乱码时，标记为扫描版候选。
+2. 对扫描版候选优先执行 OCR，读取封面、书名页、版权页、目录页和至少一页正文。
+3. OCR 信息不足时，若执行环境具备视觉理解能力，再检查上述页面图像；视觉结果必须由多页或已有元数据交叉验证。
+4. 不具备视觉能力时，增加 OCR 页数、提高渲染分辨率并切换或组合正确语言包；仍不足则标记为待人工确认。
+5. 按“人物 > 丛书 > 用户声明的专门主题 > 扫描属性 > 一般主题”判断实体目录；不属于更高优先级归集的扫描版进入 `大文件/{主题}/`。
+
+不得仅因文件体积较大把普通电子版移入 `大文件/`。
+
+## 四、子目录改名的处理
+
+子目录改名时（如 `科技人文与数学` → 拆为 `思想与人文` + `数学与物理`）：
+
+1. **先按主题分文件**：用 `shutil.move` 把每个文件移到新子目录
+2. **再清理旧目录**：旧目录空了之后用 `os.rmdir` 删除
+3. **同步 inventory.json**：
+   ```python
+   # 旧 categories["科技人文与数学"] 中的每个条目
+   # 按文件实际新位置归到 categories["思想与人文"] 或 categories["数学与物理"]
+   # 保留 cn_title/author/added_date 等元数据
+   ```
+4. **更新 `_meta.categories` 顺序**：替换旧类目为新类目（保持顺序）
+
+## 五、新增类别的讨论
+
+当预设类别无法覆盖所有图书时：
+- **多个文件有共同主题**（如 5+ 本"生物信息学"或"量子计算"），向用户建议新增类别
+- **只有 1-2 本无法归类**，讨论是否放入最接近的现有类别
+- **新增类别需用户确认后**才创建子目录，更新 `_meta.categories`
+
+## 六、注意事项
+
+- **不在根目录散落图书**：所有图书都应归入某个主题子目录；根目录散落文件要在本阶段归位
+- **EPUB 与 PDF 一视同仁**：按主题归类，不按文件格式分
+- **保留 inventory 元数据**：移动文件时不要清空 `cn_title`、`author`、`added_date`，否则下次生成 书籍清单.md 会出现大量空字段
+- **跨学科内容**：取主要主题归类，副主题在 `notes` 字段中说明
+
+## 七、丛书/子目录（优先级仅次于人物）
+
+`丛书/` 是与主题维度并存的实体归集维度。已完成文档类型分流的图书，若明确属于同一正式丛书、出版系列或多卷系列，应优先归入 `丛书/{丛书名}/`，不因主题、文件格式或扫描属性拆散。
+
+### 判定证据
+
+- 优先核对封面、丛书页、版权页、出版社书目或可靠元数据中的系列名。
+- 书名、文件名、统一装帧和卷号只用于检索候选，不能单独确定丛书归属。
+- 至少核实两卷或核实某一卷的明确系列出版信息，再创建丛书子目录。只有一本的已知系列成员可先归入，但要在清单中记录证据。
+- 定期出版的期刊、会议论文集和只有营销包装的相似书名不因“系列”字样自动归为丛书；仍先执行文档类型分流。
+
+### 与其他维度的边界
+
+1. 与某人物直接相关且该人物已有专属目录：归 `人物/{人名}/`，在 `notes` 中记录丛书名。
+2. 属于丛书但同时属于专门工程或其他主题：归 `丛书/{丛书名}/`，主题记入元数据。
+3. 丛书中的扫描版：仍归 `丛书/{丛书名}/`，把扫描属性作为元数据记录，不另行移入 `大文件/`。
+4. 同一丛书的不同语种、译本、版次和文件格式不直接删除；先标注版本关系，再按重复审查规则处理。
+
+inventory 应把 `丛书/{丛书名}` 作为递归类别跟踪，并可在条目中保留 `series`、`volume`、`edition`、`language` 和 `scan_status` 等字段。
+
+## 八、人物/ 子目录的特殊角色（按人名归集著作）
+
+`人物/` 是与主题维度并存的**第二维度**，专门按"作者/传主"归集著作。已存在的人名子目录**保持稳定**，新发现的著作按人名归位。
+
+### 1. 人物/ 子目录的组织原则
+
+每个人名一个子目录，收录**与该人物相关的一切著作**：
+
+```
+人物/
+├── Grothendieck/        # 12 个：EGA I/II、Recoltes et Semailles、Serre 通信集、Pursuing Stacks、传记等
+├── Knuth/                # 7 个：TAOCP 4A/4B、Literate Programming、Mathematical Writing、论文 Companion
+├── Robin Hartshorne/     # 代数几何、射影几何基础
+├── 维特根斯坦/           # 全集 12 卷 + 蓝皮书 + 传记
+├── 杨振宁/               # 选集 + 曙光集 + 晨曦集 + 传记
+├── Kafka/                # 施塔赫传记 3 卷 + 全集
+└── ...
+```
+
+**收录范围**：
+- 该人物**本人著作**（专著/全集/讲义/论文集）
+- 关于他的**传记/研究专著**（如 Grothendieck 的传记 *Sur les traces du dernier génie*）
+- 与合作者的**通信集**（如 Grothendieck-Serre correspondence）
+- 该人物的**论文伴侣/选集**（如 Companion to the Papers of Donald Knuth）
+
+### 2. 跨子目录扫描归位
+
+定期扫描 `数学与物理/`、`大文件/思想与人文/` 等其他子目录，找出属于已存在人物名下的著作，归到 `人物/{人名}/`。
+
+#### 人物关键词映射
+
+```python
+import re
+
+PERSONAS = {
+    "杨振宁": [r"杨振宁", r"C\.?N\.?\s*Yang", r"Frank Yang", r"Chen Ning Yang"],
+    "维特根斯坦": [r"维特根斯坦", r"Wittgenstein"],
+    "韦伯": [r"马克斯·韦伯", r"Max\s+Weber"],
+    "Dirac": [r"狄拉克", r"Paul\s+Dirac", r"P\.?\s*A\.?\s*M\.?\s*Dirac"],
+    "Euler": [r"欧拉", r"Leonhard\s+Euler", r"\bEuler\b"],
+    "Feynman": [r"费曼", r"Richard\s+Feynman", r"\bFeynman\b"],
+    "Grimmett": [r"\bGrimmett\b"],
+    "Grothendieck": [r"格罗滕迪克", r"Grothendieck"],
+    "Kafka": [r"卡夫卡", r"\bKafka\b"],
+    "Knuth": [r"高德纳", r"Donald\s+Knuth", r"\bKnuth\b"],
+    "Peter D. Lax": [r"Peter\s+D\.?\s*Lax", r"Peter\s+Lax", r"\bLax\b"],
+    "Robin Hartshorne": [r"Robin\s+Hartshorne", r"\bHartshorne\b"],
+    "Weil": [r"西蒙娜·韦伊", r"André\s+Weil", r"Andre\s+Weil", r"Simone\s+Weil", r"\bWeil\b"],
+}
+patterns = {k: re.compile("|".join(p), re.I) for k, p in PERSONAS.items()}
+
+def find_persona(filename):
+    """返回该文件应归位的人物子目录名，无匹配返回 None。"""
+    for person, pat in patterns.items():
+        if pat.search(filename):
+            return person
+    return None
+```
+
+#### 工作流
+
+```python
+import os, shutil
+
+BOOKS = "/path/to/书籍"
+PERSONAS_DIR = f"{BOOKS}/人物"
+
+# 1. 扫描非人物/ 的子目录
+candidates = []
+for dirpath, _, files in os.walk(BOOKS):
+    if "/人物" in dirpath or "人物/" in os.path.relpath(dirpath, BOOKS):
+        continue  # 跳过人物/本身
+    for f in files:
+        if not f.lower().endswith((".pdf", ".epub", ".djvu", ".mobi")):
+            continue
+        persona = find_persona(f)
+        if persona:
+            candidates.append((os.path.join(dirpath, f), persona))
+
+# 2. 移动 + 处理同名重复
+for src, persona in candidates:
+    dst_dir = f"{PERSONAS_DIR}/{persona}"
+    os.makedirs(dst_dir, exist_ok=True)
+    fname = os.path.basename(src)
+    dst = os.path.join(dst_dir, fname)
+    if os.path.exists(dst):
+        # 同名文件：检查 md5
+        if md5_of(src) == md5_of(dst):
+            # 完全重复 → 移到 待删除/
+            move_to_trash(src, "重复文件_内容相同")
+        else:
+            # 不同版本 → 加 (v2 不同版本) 后缀保留
+            base, ext = os.path.splitext(fname)
+            dst = os.path.join(dst_dir, f"{base} (v2 不同版本){ext}")
+            shutil.move(src, dst)
+    else:
+        shutil.move(src, dst)
+```
+
+### 3. 处理同名不同版本
+
+同一著作的不同电子版（如不同 Z-Library 抓取、不同翻译版本）md5 不同时，**不要直接删除**，保留两个版本并加后缀：
+
+| 主版本 | 副版本（不同 md5） |
+|---|---|
+| `Récoltes et semailles, II (Grothendieck).epub` | `Récoltes et semailles, II (Grothendieck) (v2 不同版本).epub` |
+| `代数几何 (Hartshorne).pdf` | `代数几何 (Hartshorne) (黑白扫描版).pdf` |
+
+### 4. 人物/ vs 思想与人文/ 的边界
+
+| 文件类型 | 归 `人物/` | 归 `思想与人文/` |
+|---|---|---|
+| 该人物本人专著 | ✓ | |
+| 该人物全集/选集 | ✓ | |
+| 关于该人物的传记 | ✓（如果有专属子目录） | ✓（如果暂未建立人物子目录） |
+| 与合作者通信集 | ✓ | |
+| 主题人物未建子目录的传记 | | ✓ |
+
+**原则**：一旦某位人物积累了 3+ 本相关著作，就应该在 `人物/` 下新建子目录，把分散在 `思想与人文/` 等位置的著作归位。
+
+### 5. 新建人物子目录的判断
+
+| 信号 | 处理 |
+|---|---|
+| 该人物有 3+ 本相关著作（含传记/通信） | 新建 `人物/{人名}/` |
+| 只有 1-2 本传记 | 暂放 `思想与人文/`，不新建 |
+| 人物为著名学者/历史人物 | 倾向新建（即使只有 1-2 本） |
+| 人物是当代非公众人物 | 暂不新建 |
+
+### 6. 人名子目录命名规范
+
+- **统一用人物通用名**：`Grothendieck`（不用 Alexander Grothendieck）、`Knuth`（不用 Donald E. Knuth）、`Kafka`（不用 Franz Kafka）
+- **中文人物用中文**：`杨振宁`、`维特根斯坦`、`韦伯`
+- **人名使用稳定、常见且不含糊的形式**：`Robin Hartshorne`、`Peter D. Lax`

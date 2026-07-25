@@ -2,7 +2,7 @@
 """Unit tests for organize-downloads scripts.
 
 Usage:
-    conda run -n henri_env python -m pytest tests/
+    python -m pytest tests/
 """
 import sys, os, json, tempfile
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
@@ -145,6 +145,7 @@ class TestConstants:
 from classify_images import (
     IMAGE_EXTS, _READ_LIMIT, _THUMB_SIZE
 )
+from update_inventory import scan_disk, build_markdown
 
 
 class TestImageConstants:
@@ -156,3 +157,43 @@ class TestImageConstants:
 
     def test_thumb_size_set(self):
         assert _THUMB_SIZE == (1600, 1600)
+
+
+class TestInventory:
+    def test_recursive_categories_and_exclusions(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            os.makedirs(os.path.join(tmp, "人物", "Euler"))
+            os.makedirs(os.path.join(tmp, "大文件", "数学与物理"))
+            os.makedirs(os.path.join(tmp, "杂志", "Example"))
+            os.makedirs(os.path.join(tmp, "待确认重复"))
+            os.makedirs(os.path.join(tmp, "重复"))
+            os.makedirs(os.path.join(tmp, "已归档"))
+            open(os.path.join(tmp, "人物", "Euler", "book.pdf"), "wb").close()
+            open(os.path.join(tmp, "大文件", "数学与物理", "scan.djvu"), "wb").close()
+            open(os.path.join(tmp, "杂志", "Example", "issue.pdf"), "wb").close()
+            open(os.path.join(tmp, "待确认重复", "duplicate.pdf"), "wb").close()
+            open(os.path.join(tmp, "重复", "duplicate2.pdf"), "wb").close()
+            open(os.path.join(tmp, "已归档", "archived.pdf"), "wb").close()
+
+            disk = scan_disk(tmp, [])
+
+            assert disk == {
+                "人物/Euler": ["book.pdf"],
+                "大文件/数学与物理": ["scan.djvu"],
+            }
+
+    def test_book_inventory_heading(self):
+        inventory = {
+            "_meta": {"generated": "2026-01-01"},
+            "categories": {
+                "数学与物理": [{
+                    "filename": "book.pdf",
+                    "cn_title": "示例图书",
+                    "author": "示例作者",
+                }]
+            },
+        }
+        markdown = build_markdown(inventory, ["数学与物理"], {})
+        assert markdown.startswith("# 书籍清单\n")
+        assert "共 1 本图书" in markdown
+        assert "书籍与论文清单" not in markdown

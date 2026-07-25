@@ -1,4 +1,4 @@
 interface:
   display_name: "Henri 中文写作风格"
-  short_description: "按明确条款整理口述、审查中文，并在每处修订后复读上下文"
-  default_prompt: "使用 $henri-writing-style 忠实整理口述转录或审查中文文本：保留作者原句与口述感，只修正明确问题；一般修改采用最小差异，确认重复后删除或合并，每处修订后复读前后句和所在段落。"
+  short_description: "按条款整理口述，审查中文、学术论证、AI模式与训导口吻"
+  default_prompt: "使用 $henri-writing-style 忠实整理或审查中文文本：保留作者原句与声音，只处理明确问题；按需检查学术论证、来源归属、可复核的AI表达模式和“爹味”文本行为，并在修改后复读上下文和执行最终复核。"
