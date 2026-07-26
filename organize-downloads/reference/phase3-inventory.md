@@ -19,7 +19,7 @@
 书籍/
 ├── inventory.json       ← 主数据库（唯一数据源，手动编辑）
 ├── 书籍清单.md           ← 由 inventory.json 生成（只读，勿手动编辑）
-├── (主题子目录，如 数学与物理/ 思想与人文/ AI工程与实践/)
+├── (主题子目录，如 数学/ 物理与自然科学/ 工程科学/ 科学人文/ 思想与人文/)
 ├── 杂志/
 └── 待确认重复/
 ```
@@ -34,7 +34,7 @@
     "generated": "YYYY-MM-DD",
     "total_docs": 0,
     "description": "书籍目录主数据库。MD清单由此文件生成。",
-    "categories": ["数学与物理", "思想与人文", "AI工程与实践"]
+    "categories": ["数学", "物理与自然科学", "工程科学", "科学人文", "思想与人文"]
   },
   "categories": {
     "(主题类别A)": [
@@ -61,10 +61,11 @@
 
 ## 维护工作流
 
-1. **添加新图书**：移动 PDF/EPUB 到对应子目录
-2. **编辑元数据**：在 `inventory.json` 中填充 `cn_title` 和 `author`
-3. **生成MD**：运行 `python <skill-dir>/scripts/update_inventory.py --books-dir <Documents>/书籍`
-4. **验证**：检查输出报告的 missing/incomplete 条目
+1. **初始化新书库**：若尚无 `inventory.json`，运行 `python <skill-dir>/scripts/update_inventory.py --books-dir <书籍绝对路径> --init`。该参数只创建清单文件，不创建或细分主题目录，也不覆盖现有 inventory。
+2. **添加新图书**：移动 PDF/EPUB 到已经确认的对应子目录。
+3. **编辑元数据**：在 `inventory.json` 中填充 `cn_title` 和 `author`。
+4. **生成MD**：运行 `python <skill-dir>/scripts/update_inventory.py --books-dir <书籍绝对路径>`。
+5. **验证**：检查输出报告的 missing/incomplete 条目。
 
 `update_inventory.py` 脚本会自动：
 - 检测磁盘上有但 JSON 中没有的新文件 → 添加 stub 条目（`cn_title` 和 `author` 留空）
@@ -102,7 +103,7 @@ json.dump(inv, open(INV, "w"), ensure_ascii=False, indent=2)
 
 ## 子目录改名 / 拆分时的同步
 
-当主题子目录改名（如 `科技人文与数学` → `思想与人文`）或拆分（一个旧目录拆为两个新目录）时，inventory.json 要按以下规则同步：
+当主题子目录改名（如 `科技人文与数学` → `数学`、`物理与自然科学`、`科学人文`）或拆分（一个旧目录拆为多个新目录）时，inventory.json 要按以下规则同步：
 
 1. **按文件实际位置归类目**，不要直接清空原类目：
    ```python
@@ -110,8 +111,8 @@ json.dump(inv, open(INV, "w"), ensure_ascii=False, indent=2)
        fn = entry["filename"]
        if os.path.exists(f"{BOOKS}/思想与人文/{fn}"):
            new_cat_entries["思想与人文"].append(entry)
-       elif os.path.exists(f"{BOOKS}/数学与物理/{fn}"):
-           new_cat_entries["数学与物理"].append(entry)
+       elif os.path.exists(f"{BOOKS}/数学/{fn}"):
+           new_cat_entries["数学"].append(entry)
    ```
 2. **保留 `cn_title`、`author`、`added_date`** 等元数据，不要清空
 3. **更新 `_meta.categories`**：在原位置替换为新类目（保持顺序）

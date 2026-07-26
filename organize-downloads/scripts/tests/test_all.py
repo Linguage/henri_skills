@@ -145,7 +145,9 @@ class TestConstants:
 from classify_images import (
     IMAGE_EXTS, _READ_LIMIT, _THUMB_SIZE
 )
-from update_inventory import scan_disk, build_markdown
+from update_inventory import (
+    DEFAULT_CATEGORY_ORDER, scan_disk, build_markdown, initialize_inventory
+)
 
 
 class TestImageConstants:
@@ -160,16 +162,35 @@ class TestImageConstants:
 
 
 class TestInventory:
+    def test_science_category_order(self):
+        assert DEFAULT_CATEGORY_ORDER[:4] == [
+            "数学", "物理与自然科学", "工程科学", "科学人文"
+        ]
+
+    def test_initialize_inventory_without_creating_directories(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            os.makedirs(os.path.join(tmp, "数学"))
+            open(os.path.join(tmp, "数学", "book.pdf"), "wb").close()
+
+            assert initialize_inventory(tmp) is True
+            assert initialize_inventory(tmp) is False
+            with open(os.path.join(tmp, "inventory.json"), encoding="utf-8") as f:
+                inventory = json.load(f)
+
+            assert inventory["_meta"]["categories"] == ["数学"]
+            assert inventory["categories"] == {"数学": []}
+            assert sorted(os.listdir(tmp)) == ["inventory.json", "数学"]
+
     def test_recursive_categories_and_exclusions(self):
         with tempfile.TemporaryDirectory() as tmp:
             os.makedirs(os.path.join(tmp, "人物", "Euler"))
-            os.makedirs(os.path.join(tmp, "大文件", "数学与物理"))
+            os.makedirs(os.path.join(tmp, "大文件", "数学"))
             os.makedirs(os.path.join(tmp, "杂志", "Example"))
             os.makedirs(os.path.join(tmp, "待确认重复"))
             os.makedirs(os.path.join(tmp, "重复"))
             os.makedirs(os.path.join(tmp, "已归档"))
             open(os.path.join(tmp, "人物", "Euler", "book.pdf"), "wb").close()
-            open(os.path.join(tmp, "大文件", "数学与物理", "scan.djvu"), "wb").close()
+            open(os.path.join(tmp, "大文件", "数学", "scan.djvu"), "wb").close()
             open(os.path.join(tmp, "杂志", "Example", "issue.pdf"), "wb").close()
             open(os.path.join(tmp, "待确认重复", "duplicate.pdf"), "wb").close()
             open(os.path.join(tmp, "重复", "duplicate2.pdf"), "wb").close()
@@ -179,21 +200,21 @@ class TestInventory:
 
             assert disk == {
                 "人物/Euler": ["book.pdf"],
-                "大文件/数学与物理": ["scan.djvu"],
+                "大文件/数学": ["scan.djvu"],
             }
 
     def test_book_inventory_heading(self):
         inventory = {
             "_meta": {"generated": "2026-01-01"},
             "categories": {
-                "数学与物理": [{
+                "数学": [{
                     "filename": "book.pdf",
                     "cn_title": "示例图书",
                     "author": "示例作者",
                 }]
             },
         }
-        markdown = build_markdown(inventory, ["数学与物理"], {})
+        markdown = build_markdown(inventory, ["数学"], {})
         assert markdown.startswith("# 书籍清单\n")
         assert "共 1 本图书" in markdown
         assert "书籍与论文清单" not in markdown

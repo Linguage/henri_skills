@@ -3,7 +3,7 @@
 Generate 书籍清单.md from inventory.json (the single source of truth).
 
 Usage:
-    python3 update_inventory.py [--books-dir PATH] [--dry-run]
+    python3 update_inventory.py [--books-dir PATH] [--init] [--dry-run]
 """
 
 import json, os, sys, datetime, tempfile, argparse
@@ -13,12 +13,16 @@ from urllib.parse import quote
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 DEFAULT_CATEGORY_ORDER = [
-    "数学与物理", "思想与人文", "铁路与交通工程",
+    "数学", "物理与自然科学", "工程科学", "科学人文",
+    "思想与人文", "铁路与交通工程",
     "AI工程与实践", "计算机科学与软件工程", "金融与商业",
 ]
 
 DEFAULT_CATEGORY_LABELS = {
-    "数学与物理": "数学与物理",
+    "数学": "数学",
+    "物理与自然科学": "物理与自然科学",
+    "工程科学": "工程科学",
+    "科学人文": "科学人文",
     "思想与人文": "思想与人文",
     "铁路与交通工程": "铁路与交通工程",
     "AI工程与实践": "AI 工程与实践",
@@ -101,6 +105,39 @@ def scan_disk(books_dir, cat_order=None):
         ])
         disk[cat] = files
     return disk
+
+
+def initialize_inventory(books_dir):
+    """Create a minimal inventory for an existing book directory.
+
+    This never creates topic directories and never overwrites an existing inventory.
+    """
+    inventory_file = os.path.join(books_dir, "inventory.json")
+    if os.path.exists(inventory_file):
+        return False
+
+    disk = scan_disk(books_dir, [])
+    discovered = list(disk)
+    cat_order = [c for c in DEFAULT_CATEGORY_ORDER if c in discovered]
+    cat_order.extend(c for c in discovered if c not in cat_order)
+    if not cat_order:
+        cat_order = list(DEFAULT_CATEGORY_ORDER)
+
+    today = datetime.date.today().isoformat()
+    inventory = {
+        "_meta": {
+            "generated": today,
+            "total_docs": 0,
+            "description": "书籍目录主数据库。书籍清单.md 由此文件生成。",
+            "categories": cat_order,
+        },
+        "categories": {cat: [] for cat in cat_order},
+    }
+    atomic_write(
+        inventory_file,
+        json.dumps(inventory, ensure_ascii=False, indent=2),
+    )
+    return True
 
 
 def reconcile(inventory, disk, books_dir, cat_order):
@@ -212,6 +249,10 @@ def build_markdown(inventory, cat_order, cat_labels):
 def main():
     parser = argparse.ArgumentParser(description='Update 书籍清单.md from inventory.json')
     parser.add_argument('--books-dir', help='Path to 书籍/ directory')
+    parser.add_argument(
+        '--init', action='store_true',
+        help='initialize inventory.json when missing; never overwrite an existing inventory',
+    )
     parser.add_argument('--dry-run', action='store_true', help='Print without writing files')
     args = parser.parse_args()
 
@@ -234,8 +275,14 @@ def main():
 
     inventory_file = os.path.join(books_dir, "inventory.json")
     if not os.path.exists(inventory_file):
-        print(f"ERROR: {inventory_file} not found. Run the initializer first.")
-        sys.exit(1)
+        if not args.init:
+            print(
+                f"ERROR: {inventory_file} not found. "
+                "Run again with --init to create it."
+            )
+            sys.exit(1)
+        initialize_inventory(books_dir)
+        print(f"Initialized {inventory_file}")
 
     with open(inventory_file, "r", encoding="utf-8") as f:
         inventory = json.load(f)
