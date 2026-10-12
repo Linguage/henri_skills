@@ -1,16 +1,21 @@
 ---
 name: ai-tools-management
-description: "Scan, clean, back up, and uninstall AI dev tools on macOS."
-author: Henri
+description: "Exports directly readable AI chat archives and manages macOS tool cleanup. Use for session backup, disk audits, cleanup, or uninstallation."
 created: "2026-03-12"
-last_updated: "2026-05-13"
+last_updated: "2026-10-12"
 ---
 
-> **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。
+> **Single source of truth:** Edit this skill in its source repository, not in a tool's symlinked skill directory.
 
 # AI Development Tools Management (macOS)
 
 Scan, back up, clean, and uninstall AI development tools on macOS.
+
+For recalling previous work, turn stored chat records into ordinary, directly readable files; verify the archive before authorized cleanup of the source sessions. Restoring the original tool state is a separate backup goal.
+
+Data maps and example sizes are illustrative; inspect current files and formats before acting.
+
+Keep this public skill generic: never add real chat excerpts, personal names, account identifiers, machine-specific paths, private project names, or cleanup reports. Store task-specific inventories and audit records privately, outside the skill repository.
 
 ## When to Trigger
 
@@ -24,9 +29,10 @@ Scan, back up, clean, and uninstall AI development tools on macOS.
 
 **Non-negotiable. Violating any rule risks permanent data loss.**
 
-- **Never delete without scanning + backing up first.** Always run a full scan before proposing cleanup. Always back up chat data (irreplaceable) and verify backups (file count, integrity check) before deleting sources.
-- **Always dry-run before executing; ask for explicit confirmation.** Show what would be deleted and space freed. Check process state with `pgrep -f <process>` — warn user to close running tools first. Warn about sensitive data (API tokens, internal URLs) in backups.
-- **Prefer Trash over rm; scope sudo narrowly.** Use the `trash` helper below. Only use `sudo rm -rf` for `/Applications/*.app` bundles, never with variable paths. Validate dynamically constructed paths are non-empty and under known tool directories.
+- **Scan before removal; back up affected irreplaceable data first.** Verify content, not just counts. Session cleanup must cover active and archived records, or explicitly report exclusions. Removing isolated obsolete binaries does not require copying unrelated chats.
+- **Dry-run before executing; obtain scoped confirmation.** List exact paths, expected effects, and estimated space. Reuse existing approval for that batch. Check actual process references and resolved launchers; exclude the inspecting shell from process matches.
+- **Prefer Trash; never silently fall back to permanent deletion.** Validate absolute paths against authorized roots. Emptying Trash or permanently deleting user data requires explicit authorization for that batch, not permission to inspect it.
+- **Separate completion states.** A verified archive, a verified copy at the user-selected destination, remote synchronization when applicable, removal from the source directory, and actual disk-space release are different facts.
 
 ---
 
@@ -34,13 +40,15 @@ Scan, back up, clean, and uninstall AI development tools on macOS.
 
 ```bash
 trash() {
+  if [ ! -x /usr/bin/trash ]; then
+    printf '%s\n' 'Native trash command unavailable; use Finder after confirmation.' >&2
+    return 1
+  fi
   for path in "$@"; do
-    if [ -e "$path" ]; then
-      osascript -e "tell application \"Finder\" to delete POSIX file \"$path\"" 2>/dev/null || \
-        mv "$path" ~/.Trash/ 2>/dev/null || \
-        rm -rf "$path"
-    fi
+    case "$path" in /*) ;; *) printf '%s\n' 'Absolute paths required.' >&2; return 1 ;; esac
+    [ "$path" != / ] || return 1
   done
+  /usr/bin/trash -s "$@"
 }
 ```
 
@@ -135,34 +143,27 @@ find ~/Library/Application\ Support/Code/User/workspaceStorage \
   -name "*.json" -path "*/chatSessions/*" 2>/dev/null
 ```
 
-**Duplicate extension detection:**
-```bash
-ls ~/.vscode/extensions/ 2>/dev/null | \
-  sed 's/-[0-9]*\.[0-9]*\.[0-9]*$//' | sort | uniq -d | while read ext; do
-    echo "Duplicate: $ext"
-    ls -d ~/.vscode/extensions/${ext}-* 2>/dev/null | while read dir; do
-      echo "  $dir ($(du -sh "$dir" | cut -f1))"
-    done
-  done
-```
+**Duplicate extension candidates:** Group directories by `publisher` and `name` from each `package.json`; record `version` and platform. Filename suffix stripping misses architecture suffixes and UUID-named remnants. Before removal, check `.obsolete`, `extensions.json`, profiles and running processes as described in [the cleanup reference](references/backup-and-cleanup.md#conservative-tool-cleanup).
 
 ### Cursor
 
 ```
 /Applications/Cursor.app                           # App bundle
 ~/.cursor/
-  ├── extensions/                                  # ✅ CACHE — reinstallable (~627M)
+  ├── extensions/                                  # 🟡 installed extensions; retain active versions
   ├── projects/                                    # ⛔ CONFIG
   ├── ai-tracking/ai-code-tracking.db              # ⚠️ CHAT — SQLite (may be empty)
   └── *.json                                       # ⛔ CONFIG
 ```
+
+Standalone Cursor Agent versions may also live in `~/.local/share/cursor-agent/versions/`; resolve `~/.local/bin/agent` and `cursor-agent` and check process references before cleaning old versions.
 
 ### Windsurf (Codeium)
 
 ```
 /Applications/Windsurf.app                         # App bundle
 ~/.windsurf/
-  ├── extensions/                                  # ✅ CACHE — installed extensions (~1G+)
+  ├── extensions/                                  # 🟡 installed extensions; retain active versions
   ├── plans/                                       # 🟡 MODERATE
   └── worktrees/                                   # 🟡 MODERATE
 ~/.codeium/windsurf/
@@ -176,16 +177,7 @@ ls ~/.vscode/extensions/ 2>/dev/null | \
 **Notes:** 
 - Cascade `.pb` files cannot be converted to text without the `.proto` schema. Always preserve originals.
 - Extensions in `~/.windsurf/extensions/` can be reinstalled from Marketplace.
-- Duplicate extension detection:
-```bash
-ls ~/.windsurf/extensions/ 2>/dev/null | \
-  sed 's/-[0-9].*$//' | sort | uniq -d | while read ext; do
-    echo "Duplicate: $ext"
-    ls -d ~/.windsurf/extensions/${ext}-* 2>/dev/null | while read dir; do
-      echo "  $(du -sh "$dir" | cut -f1) - $(basename "$dir")"
-    done
-  done
-```
+- Identify duplicate candidates from package metadata as for VS Code; do not remove merely by filename/version.
 
 ### Claude Code
 
@@ -200,9 +192,11 @@ ls ~/.windsurf/extensions/ 2>/dev/null | \
   └── plugins/                                     # ⛔ CONFIG
 ```
 
+Standalone binaries may live in `~/.local/share/claude/versions/`; resolve `~/.local/bin/claude` and check running versions before removing any binary.
+
 **Sensitive data check:**
 ```bash
-grep -E "(TOKEN|KEY|SECRET|PASSWORD)" ~/.claude/settings.json 2>/dev/null
+grep -IlE "(TOKEN|KEY|SECRET|PASSWORD)" ~/.claude/settings.json 2>/dev/null
 ```
 
 ### OpenCode
@@ -210,8 +204,9 @@ grep -E "(TOKEN|KEY|SECRET|PASSWORD)" ~/.claude/settings.json 2>/dev/null
 ```
 ~/.local/share/opencode/
   ├── opencode.db                                  # ⚠️ CHAT — SQLite (~14M)
-  ├── opencode.db-shm                              # temp
-  └── opencode.db-wal                              # temp
+  ├── opencode.db-shm                              # ⚠️ live SQLite state; not an independent cleanup target
+  ├── opencode.db-wal                              # ⚠️ may hold committed data not yet checkpointed
+  └── snapshot/                                    # ⚠️ recovery data; inspect before removal
 ~/.opencode/                                       # ⛔ CONFIG (if exists)
 ```
 
@@ -251,6 +246,9 @@ fi
   ├── AGENTS.md                                     # ⛔ CONFIG
   ├── sessions/                                     # ⚠️ CHAT — session data (~443M)
   ├── archived_sessions/                            # ⚠️ CHAT — archived sessions (~49M)
+  ├── *.sqlite, *.sqlite-wal, *.sqlite-shm            # ⚠️ persistent state; never delete WAL independently
+  ├── worktrees/                                    # ⚠️ project copies; check uncommitted/unpushed work
+  ├── generated_images/, attachments/               # ⚠️ generated/user assets, not disposable caches
   ├── cache/                                        # ✅ CACHE (~644K)
   ├── log/                                          # ✅ CACHE (~8.4M)
   ├── shell_snapshots/                              # ✅ CACHE
@@ -263,8 +261,11 @@ fi
   ├── computer-use/                                 # 🟡 MODERATE (~28M)
   ├── vendor_imports/                               # 🟡 MODERATE
   ├── node_repl/                                    # 🟡 MODERATE
+  ├── .tmp/                                         # 🟡 inspect plugin backups and in-progress installs
   └── tmp/                                          # ✅ CACHE
 ```
+
+Also inspect `~/.cache/codex-runtimes/` separately; its primary runtime is not a disposable download cache.
 
 ### Cline
 
@@ -363,24 +364,23 @@ du -sh ~/.gemini/history/ 2>/dev/null
 1. Run detection script
 2. For each tool, calculate sizes: `du -sh <path> 2>/dev/null`
 3. Identify duplicate extensions (VS Code / Cursor)
-4. Present summary table: tool, total size, cache (cleanable), chat data, extensions
+4. Present summary table: tool, allocated space, logical bytes, rebuildable candidates, persistent data, extensions. Keep active and archived sessions separate; group by recorded project paths without equating similarly named directories.
 
 ### 2. Backup
 
-**Goal:** Export chat histories and critical configs before destructive operations.
+**Goal:** Make complete chat history directly readable for recalling previous work, or preserve resumable originals when the user requests restoration.
 
-1. Create timestamped backup: `~/Downloads/ai-tools-backup-$(date +%Y%m%d-%H%M%S)/`
-2. Copy chat data per tool (see data maps for paths and formats)
-3. Generate `manifest.json` with tool details, file counts, checksums
-4. Verify backup: check SQLite integrity, compare file counts with source
-5. Compress: `tar czf`
-6. **Warn** user about API tokens and sensitive paths in backup
+Follow [Session backup, readable archiving, and cleanup](references/backup-and-cleanup.md) before exporting or removing sessions. It defines scope, readable archive layout, media deduplication, time-range naming, content verification, destination transfer, and post-cleanup reconciliation.
+
+Ask the user to specify an absolute backup path if none has been provided. Do not assume a folder or storage provider. Export full messages, tool activity and linked attachments as ordinary files in one archive that needs no restoration script to read after extraction. Verify content and the destination copy before authorized source cleanup. Warn that conversations, outputs, and screenshots can contain secrets; do not print credential values or publish archives.
 
 ### 3. Clean
 
 **Always scan first. Always dry-run before executing.**
 
-#### Safe (zero risk)
+Follow the conservative-cleanup checks in [the reference](references/backup-and-cleanup.md#conservative-tool-cleanup). A directory's size is not its reclaimable size; rebuilding may require network access. Preserve anything whose usage or recovery status is uncertain.
+
+#### Rebuildable candidates (verify usage; not zero risk)
 
 | Target | Tool | Command |
 |--------|------|---------|
@@ -389,13 +389,13 @@ du -sh ~/.gemini/history/ 2>/dev/null
 | Browser cache | VS Code | `trash ~/Library/Application\ Support/Code/Cache` |
 | State DB backup | VS Code | `trash .../User/globalStorage/state.vscdb.backup` |
 | Old logs (>7d) | VS Code | `find .../Code/logs -mtime +7 -exec trash {} +` |
-| Duplicate extensions (old versions) | VS Code/Cursor/Windsurf | detect then `trash` older dirs |
+| Duplicate extensions (old versions) | VS Code/Cursor/Windsurf | check `.obsolete`, registrations/profiles and process references before removing |
 | Shell snapshots | Claude Code | `trash ~/.claude/shell-snapshots` |
 | System cache | VS Code | `trash ~/Library/Caches/com.microsoft.VSCode` |
 | Logs | Droid | `trash ~/.factory/logs` — 可释放 ~186M |
 | Logs | OpenAI Codex | `trash ~/.codex/log` — ~8.4M |
 | Logs | GitHub Copilot CLI | `trash ~/.copilot/logs` |
-| Cache | OpenAI Codex | `trash ~/.codex/cache ~/.codex/tmp` |
+| Cache / temp | OpenAI Codex | inspect `cache`, `tmp`, and `.tmp` independently; skip active installs |
 | Temp / telemetry | Droid | `trash ~/.factory/temp ~/.factory/telemetry` |
 | Temp | Gemini CLI | `trash ~/.gemini/tmp` |
 | Bundled packages | GitHub Copilot CLI | `trash ~/.copilot/pkg` — ~352M, re-downloaded on next run |
@@ -407,10 +407,11 @@ du -sh ~/.gemini/history/ 2>/dev/null
 | Bundled Chromium | Windsurf | `ws-browser/` ~465M, re-downloaded on launch |
 | WebStorage | VS Code | ~1.4G browser storage |
 | All extensions | Cursor/Windsurf | reinstallable from Marketplace |
-| Archived sessions | OpenAI Codex | `~/.codex/archived_sessions/` ~49M |
 | Shell snapshots | OpenAI Codex | `~/.codex/shell_snapshots/` |
 | Code server data | Droid | `~/.factory/code-server-data/` ~1.9M |
 | File changes | Amp | `~/.amp/file-changes/` ~58M, 重建代价高 |
+
+Archived sessions, project worktrees, generated assets, and SQLite stores are persistent data, not caches. Back up and verify the affected data before authorized removal.
 
 #### Aggressive (medium risk)
 
