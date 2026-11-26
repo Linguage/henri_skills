@@ -19,7 +19,7 @@ _get_openai_base_url() {
 
 case "$PROVIDER" in
     claude|off)
-        unset ANTHROPIC_API_KEY ANTHROPIC_BASE_URL ANTHROPIC_MODEL OPENAI_BASE_URL
+        unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_BASE_URL ANTHROPIC_MODEL OPENAI_BASE_URL
         echo "→ 已切换到官方 Claude（清除 provider 变量）"
         ;;
     --list)
@@ -42,7 +42,8 @@ case "$PROVIDER" in
             ls "$KEYS_DIR" 2>/dev/null | sed 's/^/     /'
             return 1 2>/dev/null || exit 1
         fi
-        source "$KEY_FILE"
+        unset ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_BASE_URL ANTHROPIC_MODEL OPENAI_BASE_URL
+        source "$KEY_FILE" || return 1
         OPENAI_URL=$(_get_openai_base_url "$PROVIDER")
         if [ -n "$OPENAI_URL" ]; then
             export OPENAI_BASE_URL="$OPENAI_URL"

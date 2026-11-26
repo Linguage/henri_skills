@@ -4,6 +4,7 @@ description: "搭建项目管理文档，并为 DeepSeek Harness 项目工作台
 metadata:
   author: Henri
   created: "2026-04-12"
+  last_updated: "2026-11-26"
 ---
 
 > **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。

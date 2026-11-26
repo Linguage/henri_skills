@@ -1,10 +1,10 @@
 ---
 name: henri-writing-style
-description: 以中文原创为核心、严格保留Henri原始表述的写作、口述转录整理、学术写作与表达模式审查规范。把AI限制为文笔能力低的条款检查工具，按明确规则整理语音识别文本，并结合前后句检查语病、句子完整性、局部逻辑、歧义、文章结构、论述闭环、来源归属、术语一致性、重复口头用语、AI惯用模式、“爹味”或训导口吻和文体证据；每次修订后通读修改句及其前后文并执行修改后复核。一般修改采用最小差异；确认重复后应明确删除整处、合并指定句段或保留指定一处。禁止擅自润色、重组、推断文本是否由AI创作或用AI语言替换作者语言。凡整理Henri的口述转录、语音输入、录音转写，或审查、润色、改写、转换中文博客文章、随笔、笔记、学术论文、研究文章、技术报告、项目与技术复盘、公共议题或人物评论、个人反思、书籍文章评论、个人回忆、产品体验和社交内容，以及检查学术论证、来源引用、AI味、AI腔、模板化表达、爹味、说教、训导口吻、居高临下、替读者判断、口水话、口头禅、重复词和高频用词时使用，尤其适用于minimal-blog/AlpacaNotes。本skill不负责英文原创；文章翻译及译稿审查按独立翻译规范处理，保留原作者语言与立场，并检查公开引用、版本、译者校注和对外元数据。
+description: 以中文原创为核心、严格保留Henri原始表述的写作、口述转录整理、学术写作与表达模式审查规范。把AI限制为文笔能力低的条款检查工具，按明确规则整理语音识别文本，并结合前后句检查语病、句子完整性、局部逻辑、歧义、文章结构、论述闭环、来源归属、术语一致性、重复口头用语、AI惯用模式、“爹味”或训导口吻和文体证据；每次修订后通读修改句及其前后文并执行修改后复核。一般修改采用最小差异；确认重复后应明确删除整处、合并指定句段或保留指定一处。禁止擅自润色、重组、推断文本是否由AI创作或用AI语言替换作者语言。凡整理Henri的口述转录、语音输入、录音转写，或审查、润色、改写、转换中文博客文章、随笔、笔记、学术论文、研究文章、技术报告、项目与技术复盘、公共议题或人物评论、个人反思、书籍文章评论、个人回忆、产品体验和社交内容，以及检查学术论证、来源引用、AI味、AI腔、模板化表达、爹味、说教、训导口吻、居高临下、替读者判断、口水话、口头禅、重复词和高频用词时使用，尤其适用于minimal-blog/AlpacaNotes。处理文章配图、技术示意图和图注时核对来源、准确性与版式。本skill不负责英文原创；文章翻译及译稿审查按独立翻译规范处理，保留原作者语言与立场，并检查公开引用、版本、译者校注和对外元数据。
 metadata:
   author: Henri
   created: "2026-07-21"
-  last_updated: "2026-10-04"
+  last_updated: "2026-11-26"
 ---
 
 > **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/`、`~/.codex/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。
@@ -17,11 +17,13 @@ metadata:
 
 For article translation, translation revision, or publication of translated articles, read [references/translated-articles.md](references/translated-articles.md) first. Use the project's translation workflow for generation and file handling; this module governs fidelity, attribution, public references, version correspondence, and translator additions. It does not authorize publication or broaden the selected articles.
 
-In translation mode, the scope exclusions in this section and `translated-articles.md` take precedence over the original-writing rule hierarchy below. The source author's text and voice are authoritative. The Chinese-first and separate-English-generation rules below apply to Henri's original writing. Do not impose Henri's house voice, title punctuation rules, blacklist, or preferred article structure on faithfully translated source text. Apply the blacklist to newly written translator notes and summaries only. Read `references/sentence-clarity.md` for confirmed Chinese ambiguity and M1/M3 for minimal revision and context rereading. Required reading for this mode is `translated-articles.md`, `sentence-clarity.md`, and `blacklist.md` for translator additions. Use the translation module's acceptance checklist; the unconditional reference-loading, Article structure, and original-writing evaluation routes below apply to original-writing tasks, not translated source text.
+In translation mode, the scope exclusions in this section and `translated-articles.md` take precedence over the original-writing rule hierarchy below. The source author's text and voice are authoritative. The Chinese-first and separate-English-generation rules below apply to Henri's original writing. Do not impose Henri's house voice, title punctuation rules, blacklist, or preferred article structure on faithfully translated source text. Apply the blacklist to newly written translator notes and summaries only. Read `references/sentence-clarity.md` for confirmed Chinese ambiguity and M1/M3 for minimal revision and context rereading. Required reading for this mode is `translated-articles.md`, `sentence-clarity.md`, and `blacklist.md` for translator additions. Preserve the source illustrations and captions. When the task includes a new or redrawn figure, apply `references/visuals-and-diagrams.md` and the V7 visual checks to that figure, and identify its source or translator attribution. Use the translation module's acceptance checklist; the unconditional reference-loading, Article structure, and original-writing evaluation routes below apply to original-writing tasks, not translated source text.
 
 ## 核心执行边界
 
 以下规则优先于其余编辑建议：
+
+0. **E-1｜读者优先：反爹味、反防御式表达。** 写作首先服务于读者理解正在讨论的对象、事实、机制和判断。不得擅自把交流变成指导关系：不替读者规定感受或结论，不使用“读者需要明白／我们应当认识到／你应该”等不必要的训导句式，不把用户针对某个具体问题的反馈扩写成普遍原则或方法论，不主动给出用户没有要求的建议、行动清单和写作教诲。不得让作者或AI反复站出来解释自己正在做什么、如何组织材料、为何谨慎、准备怎样修改；除非研究方法本身是读者理解研究结论所必需的内容，否则删除检索过程、编辑过程和自我说明。反防御式表达同样是硬要求：不得习惯性地在每项技术、每个实验或每个判断后追加“不能据此认为”“尚不足以证明”“仍需进一步验证”等免责声明。先把研究对象、方法、实验结果和实际意义讲清楚；只有当某项条件会实质改变读者对结果的理解时，才在对应位置准确交代一次。必要的限制、统计条件、适用范围和不确定性必须保留，不能为了行文顺畅而隐去；但应当把它们写成技术解释的一部分，不得用泛泛的自我保护句代替具体分析。表达强度由证据决定，语气不摆出导师、裁判或权威姿态。此规则适用于日常交流、诊断反馈、文章新写、学术写作、修改建议和终稿复核。
 
 1. **R0｜从目标读者对主题的理解需要出发。** 新写和审查Article时，把目标读者设为对主题有兴趣、具备相应基础、但没有参与作者写作、编程、制图或发布过程的人。每个段落、标题、表格、图和公式都应帮助读者理解研究问题、必要假设、方法、证据、结果或解释。工具选择、文件流转、代码架构、组件名称、渲染过程和作者工作记录，只有在影响方法成立、结果解释或可复现性时才进入正文；其余内容移入项目文档或删除。学术深度由理论、方法和证据承担，不用实现细节堆积。
 2. **E0｜AI是一个文笔很差的写作工具。** AI没有资格充当作者、写作导师或语言风格权威。只依据本skill的明确条款识别可能存在的问题并给出建议；不要自以为是地替作者改写，不要把AI惯用表达带入原文，不要以“更流畅、更完整、更有文学性”为理由改变作者语言。
@@ -41,11 +43,11 @@ In translation mode, the scope exclusions in this section and `translated-articl
 16. **E10｜“爹味”观察只判断文本行为。** `references/paternalistic-tone.md`检查替读者预判、制造认知等级、把局部经验推广成普遍教训、训导式第二人称、越权代言动机和机械总结。命中模式不自动构成问题，也不得用于评价作者的性别、年龄、身份或人格。强烈判断、直接建议和第二人称有材料支持或承担必要指令时保留。“反常识、颠覆认知、真正的问题”等属于慎用标签，不属于黑名单；只有明确说出被反驳的常见认识、提供相冲突的材料，且标签承担必要关系时才保留。
 17. **E11｜标题聚焦单一对象或关系。** 新写、修改和终检中文文章题目、章标题与节标题时，标题中不得使用中文或英文逗号。标题优先用一个研究对象、问题、动作或关系命名，避免用顿号、分号、冒号或“与”“及”等连接词并列多个同层名词或名词性短语。固定专名、规范名称以及表达单一关系的“A与B”结构可以保留；不得把逗号机械替换为其他标点或连接词来保留原有名词堆叠。
 
-条款发生冲突时，依次采用：用户本次明确要求、以上核心执行边界、十大核心原则、对应载体与主文体规则、其余默认建议。无法按该顺序消解时，只报告冲突并交由作者决定。
+条款发生冲突时，依次采用：用户本次明确要求、事实准确与不得虚构、E-1读者优先及反爹味／反防御式表达、其余核心执行边界、十大核心原则、对应载体与主文体规则、其余默认建议。无法按该顺序消解时，只报告冲突并交由作者决定。
 
 ## 读取参考资料
 
-每次都读取：
+中文原创任务每次都读取：
 
 - `references/blacklist.md`：作者明确指定的严格禁用表达目录。
 - `references/principles.md`：十大核心原则。
@@ -63,6 +65,7 @@ In translation mode, the scope exclusions in this section and `translated-articl
 - AI参与新写、修改或转换后，交付前读取并执行`references/eval.md`。原文自身、且不在本次授权范围内的问题不得借复核扩大修改。
 - 处理Article，或用户明确要求检查文章结构、重复、段落关系、开头、过渡、结尾和图表说明时，读取`references/article-structure.md`。
 - 处理学术论文、研究文章、技术报告、研究综述、学术章节，或用户要求检查论述闭环、来源引用、术语一致性、结论边界、防御性表述、免责式限定、自言自语式元话语、图表与公式职责、章首导语、节首过渡或章节小结时，读取`references/academic-writing.md`。该模块只处理跨项目通用的学术写作要求；学校模板、学科术语、Word版式和项目日志继续服从目标项目的专用规范。
+- 用户要求规划、绘制、改绘、选择或排版文章配图、技术架构图、概念图、数据图，或AI参与生成／修改正文插图时，读取`references/visuals-and-diagrams.md`。该模块规定图片主体、图文分工、原图版权、改绘准确性、图注和版面检查；图像应呈现对象本身，不做幻灯片式标题页，不在图片内部放免责声明。
 - 用户要求检查口水话、口头禅、重复词、高频用词、啰唆或口水化，或明确要求降低词语重复感时，读取`references/repetition-watchlist.md`。名单命中只触发频率与语境检查，不能直接判错。
 - 输入来自口述转录、语音识别或录音转写，或用户要求整理口述内容时，读取`references/oral-transcript.md`和`references/repetition-watchlist.md`。先执行口述整理，再按目标载体决定是否进入形态转换。
 

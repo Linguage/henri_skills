@@ -1,6 +1,6 @@
 # Agents.md
 
-This is the personal AI agent skills repository (`henri_skills`). Each subdirectory contains a skill with a `SKILL.md` file. The repo is the single source of truth for Claude Code, OpenCode, `.agents`, and Codex user skills.
+This is the personal AI agent skills repository (`henri_skills`). Each subdirectory contains a skill with a `SKILL.md` file. The repo supplies local skill files for Claude Code, OpenCode, `.agents`, and Codex user skills.
 
 ## Conventions
 
@@ -13,7 +13,7 @@ This is the personal AI agent skills repository (`henri_skills`). Each subdirect
 
 ## Skills project management (this repo)
 
-- **Single source of truth**: edit skills only in this repository, never in symlinked directories (`~/.claude/skills/`, `~/.config/opencode/skills/`, `~/.agents/skills/`, `~/.codex/skills/<skill>/`).
+- **Local skill files**: edit files in this repository, never in symlinked directories (`~/.claude/skills/`, `~/.config/opencode/skills/`, `~/.agents/skills/`, `~/.codex/skills/<skill>/`).
 - **Frontmatter — originals**: set `author: Henri`, plus `created` (first commit date for that `SKILL.md`) and `last_updated` when applicable (see README for the `2026-04-12` exclusion rule).
 - **Frontmatter — third-party**: keep `source`, `author` (upstream maintainer), and `modifications` (note that the skill may have been changed from upstream); same `created` / `last_updated` rules as above.
 - **Description**: keep under 12 words when practical. State WHAT the skill does, not capabilities or supported formats. Longer trigger text is acceptable only when matching quality requires it.
@@ -28,7 +28,7 @@ Recommended「单一来源」wording:
 
 ## Symlink Chain
 
-This repo is the source of truth. It is consumed via directory-level symlinks:
+Local clients read this repository through directory-level symlinks. For skills also maintained in Notion, consult the existing private Skills page before editing and reconcile changes on both sides:
 
 ```
 ~/.claude/skills/          → this repo          # 全局

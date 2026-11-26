@@ -70,15 +70,14 @@ def switch_api(provider: str) -> None:
         return
 
     # 通过 bash 执行 switch_api.sh 并捕获导出的环境变量
-    script = f"""
-        source "{SCRIPT_DIR}/switch_api.sh" "{provider}" >&2
-        # 输出当前环境变量供 Python 捕获
-        echo "ANTHROPIC_API_KEY=${{ANTHROPIC_API_KEY:-}}"
-        echo "ANTHROPIC_BASE_URL=${{ANTHROPIC_BASE_URL:-}}"
-        echo "ANTHROPIC_MODEL=${{ANTHROPIC_MODEL:-}}"
+    script = """
+        source "$1" "$2" >&2 || exit 1
+        for key in ANTHROPIC_API_KEY ANTHROPIC_AUTH_TOKEN ANTHROPIC_BASE_URL ANTHROPIC_MODEL; do
+            printf '%s=%s\\n' "$key" "${!key}"
+        done
     """
     result = subprocess.run(
-        ["bash", "-c", script],
+        ["bash", "-c", script, "switch-api", str(SCRIPT_DIR / "switch_api.sh"), provider],
         capture_output=True, text=True
     )
     # 显示 switch_api.sh 的输出（在 stderr）
@@ -97,24 +96,20 @@ def switch_api(provider: str) -> None:
                 os.environ[k] = v
 
 
-async def test_provider(provider: str, third_party: bool | None = None) -> bool:
+async def test_provider(provider: str, *, already_switched: bool = False) -> bool:
     """测试单个 provider，返回是否成功"""
-    if third_party is None:
-        third_party = provider not in ("off", "claude")
-    # 每次测试前清除旧变量
-    clear_provider_env()
-
-    if provider not in ("off", "claude"):
-        model = load_provider(provider)
-    else:
-        model = "default (Claude)"
-        print(f"🔑 使用当前环境默认配置 → {model}")
+    is_claude = provider in ("off", "claude")
+    if not already_switched:
+        clear_provider_env()
+        if not is_claude:
+            load_provider(provider)
+    if is_claude:
+        print("🔑 使用 Claude 默认配置")
 
     # 延迟导入，确保环境变量生效后再初始化
     from claude_agent_sdk import query, ClaudeAgentOptions
 
     # Claude 原生模式用 opus plan；第三方 provider 不设 model（由环境变量控制）
-    is_claude = provider in ("off", "claude") and not third_party
     opts = ClaudeAgentOptions(
         allowed_tools=[],
         model="claude-opus-4-6" if is_claude else None,
@@ -163,8 +158,7 @@ async def main():
         switch_api(target)
         if target == "--list":
             sys.exit(0)
-        # 切换后自动测试（provider 已通过 switch_api 加载，用 off 跳过重复加载）
-        ok = await test_provider("off", third_party=target not in ("claude", "off"))
+        ok = await test_provider(target, already_switched=True)
         sys.exit(0 if ok else 1)
 
     if "--all" in args:

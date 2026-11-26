@@ -1,6 +1,6 @@
 # Henri Skills
 
-个人 AI agent skills 合集。本仓库是唯一源；Claude Code、OpenCode、`.agents`、Codex 等通过符号链接消费。
+个人 AI agent skills 合集。本仓库是本机工具读取技能文件的统一来源；Claude Code、OpenCode、`.agents`、Codex 等通过符号链接消费。
 
 ## 架构
 
@@ -18,7 +18,7 @@ henri_skills/                              ← 源仓库（本仓库）
 <project>/.claude/skills/<skill>/ → henri_skills/<skill>/  ← 项目级（按需）
 ```
 
-- **henri_skills** 是所有 skills 的唯一源仓库，所有修改都在此进行
+- **henri_skills** 保存本机技能文件。已导入 Notion 的技能由私人 Skills 库保存主副本；同步前核对该页、工作区和远端提交，合并各自的改动
 - Claude / OpenCode / `.agents`：整目录指向本仓库
 - Codex：因需保留 `~/.codex/skills/.system`，只能按 skill 软链接；新增或迁入仓库后需手动补链
 - 不要在任何链接路径下直接编辑
@@ -33,7 +33,7 @@ henri_skills/                              ← 源仓库（本仓库）
 |-------|------|------|
 | [academic-latex-pdf](academic-latex-pdf/) | henri | 将学术 Markdown 排版为可复现的 LaTeX / PDF |
 | [ai-tools-management](ai-tools-management/) | henri | 扫描、清理、备份和卸载 macOS 上的 AI 开发工具 |
-| [doc-system-scaffold](doc-system-scaffold/) | henri | 一键搭建项目文档系统骨架 |
+| [doc-system-scaffold](doc-system-scaffold/) | henri | 搭建项目文档骨架，登记 DSH 工作台与任务进度 |
 | [henri-writing-style](henri-writing-style/) | henri | 按条款整理口述、审查中文，保留作者原表述 |
 | [organize-downloads](organize-downloads/) | henri | 整理下载目录：分类、书库对账、OCR、清单与迁移 |
 | [organize-documents](organize-documents/) | henri | 规范化整理 Documents/文档 库：命名、来源归属、粗主题归类 |

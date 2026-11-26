@@ -1,9 +1,9 @@
 ---
 name: testing-sdk-models
-description: "Test SDK connectivity with third-party model providers (GLM, MiniMax, etc.)."
+description: "Test SDK connectivity with third-party model providers (DeepSeek and MiniMax)."
 author: Henri
 created: "2026-03-15"
-last_updated: "2026-09-14"
+last_updated: "2026-11-26"
 ---
 
 > **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。
@@ -18,7 +18,7 @@ last_updated: "2026-09-14"
 ## Prerequisites
 
 - conda environment `henri_env` with `claude_agent_sdk` and `openai-agents` installed
-- Provider key files in `~/.configanthropic/keys/` (e.g., `glm`, `minimax`)
+- Provider key files in `~/.configanthropic/keys/` (e.g., `deepseek-flash`, `minimax`)
 - Each key file contains `export ANTHROPIC_API_KEY=...`, `ANTHROPIC_BASE_URL=...`, `ANTHROPIC_MODEL=...`
 
 ## Usage
@@ -26,7 +26,7 @@ last_updated: "2026-09-14"
 ### Anthropic SDK 测试
 
 ```bash
-# Test default provider (glm)
+# Test default provider (deepseek-flash)
 source ~/miniconda3/etc/profile.d/conda.sh && conda activate henri_env && python scripts/test_anthropic_sdk.py
 
 # Test specific provider
@@ -42,7 +42,7 @@ python scripts/test_anthropic_sdk.py claude
 ### OpenAI SDK 测试
 
 ```bash
-# Test default provider (glm)
+# Test default provider (deepseek-flash)
 source ~/miniconda3/etc/profile.d/conda.sh && conda activate henri_env && python scripts/test_openai_sdk.py
 
 # Test specific provider
@@ -57,8 +57,8 @@ python scripts/test_openai_sdk.py --all
 通过 `--switch` 调用终端的 `switch_api.sh`，自动 source 配置并测试：
 
 ```bash
-# 切换到 glm 并测试
-python scripts/test_anthropic_sdk.py --switch glm
+# 切换到 deepseek-flash 并测试
+python scripts/test_anthropic_sdk.py --switch deepseek-flash
 
 # 切换到 minimax 并测试
 python scripts/test_anthropic_sdk.py --switch minimax
@@ -73,7 +73,7 @@ python scripts/test_anthropic_sdk.py --switch --list
 也可以在 Amp 中直接 source `switch_api.sh` 来切换（不测试）：
 
 ```bash
-source scripts/switch_api.sh glm
+source scripts/switch_api.sh deepseek-flash
 source scripts/switch_api.sh --list
 ```
 
@@ -83,7 +83,7 @@ source scripts/switch_api.sh --list
    - "test anthropic SDK" / "test claude SDK" → `test_anthropic_sdk.py`
    - "test openai SDK" → `test_openai_sdk.py`
    - "test SDK" (unspecified) → run both
-2. If a specific provider is mentioned (e.g., "test glm"), pass it as argument
+2. If a specific provider is mentioned (e.g., "test deepseek-flash"), pass it as argument
 3. If the user says "test all", use `--all` flag
 4. If the user says "switch to X" or "切换到 X", use `--switch <provider>`
 5. Report the results: model name, response content, success/failure
