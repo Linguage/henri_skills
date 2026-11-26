@@ -7,6 +7,7 @@
 - `INBOX_ROOT`：接收、查重、识别、待确认和短期处理区。
 - `STAGING_ROOT`：已经完成整理的本地内容库；先检查并复用其中已有目录。
 - 若用户指定其他位置，以用户指定为准，不硬编码 `Downloads` 或 `Documents`。
+- Apply the document-project and personal-archive user conventions in SKILL.md first: use the independent roots `Documents/文档项目/` and `Documents/个人档案/`. Do not reuse the old Downloads staging destinations or `Documents/文档项目/个人档案/`. The generic type table below does not override these conventions.
 - 把用户说的 `tmp`、`书籍` 等称呼解析成绝对路径并复述确认。不得把 `Downloads/tmp` 解释为 `/tmp` 或 `/private/tmp`。
 - 用户可以为图书、论文、其它文档和重复文件分别指定不同目标根目录；逐类型记录目标，不强制合并成单一 `STAGING_ROOT`。
 - 从收件区归位到本地暂存库属于本阶段的正常移动；从本地暂存库备份到云端仍默认复制。
@@ -20,6 +21,8 @@
 - 同题但大小或版本不同的文件默认进入待确认状态；只有用户明确把“同书不同版本”也视为重复时，才归入重复目录。
 
 ## 文档型内容的语义去向
+
+下表适用于无明确项目归属的独立资料。用户自行整理的综述、调研、翻译或重制稿及其直接相关材料，先按 SKILL.md 的“知识性文档的项目关联优先”归集，不因 PDF、MD、DOCX 或图片格式不同而拆散项目。
 
 | 类型 | 默认去向 | 判断要点 |
 |---|---|---|
@@ -64,7 +67,7 @@ python <skill-dir>/scripts/classify_images.py --scan-root <PATH>
 **处理方式：**
 
 1. 单独列出并标注“敏感文档”；
-2. 询问是否存入 `STAGING_ROOT/个人档案/`、`STAGING_ROOT/文档/受限资料/` 或用户指定位置；
+2. 按 SKILL.md 的当前用户约定或用户指定的个人档案/受限资料路径提出存档方案；学位论文与答辩配套材料优先复用指定根目录中的相应学位材料分类；
 3. 用户确认后再移动，不把敏感内容放入普通杂项目录。
 
 ## 工作流程

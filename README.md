@@ -36,6 +36,7 @@ henri_skills/                              ← 源仓库（本仓库）
 | [doc-system-scaffold](doc-system-scaffold/) | henri | 一键搭建项目文档系统骨架 |
 | [henri-writing-style](henri-writing-style/) | henri | 按条款整理口述、审查中文，保留作者原表述 |
 | [organize-downloads](organize-downloads/) | henri | 整理下载目录：分类、书库对账、OCR、清单与迁移 |
+| [organize-documents](organize-documents/) | henri | 规范化整理 Documents/文档 库：命名、来源归属、粗主题归类 |
 | [testing-sdk-models](testing-sdk-models/) | henri | 测试 Claude Agent SDK 对各模型 provider 的连通性 |
 | [work-notes-pipeline](work-notes-pipeline/) | henri | 编写会话总结，或将工作笔记改写为叙述性文章 |
 

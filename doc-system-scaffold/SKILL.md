@@ -1,8 +1,9 @@
 ---
 name: doc-system-scaffold
-description: "一键搭建项目文档系统骨架（核心三文档 + c.md + jobs/legacy 流转 + Agents.md 约定）。当用户要求初始化文档系统、搭建文档结构、或为新项目创建文档骨架时使用。"
-author: Henri
-created: "2026-04-12"
+description: "搭建项目管理文档，并为 DeepSeek Harness 项目工作台生成管理目录索引和 Agent 进度事件。适用于初始化文档系统、登记多仓库工作台或接续已有工作台任务。"
+metadata:
+  author: Henri
+  created: "2026-04-12"
 ---
 
 > **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。
@@ -98,3 +99,27 @@ created: "2026-04-12"
 
 - `{子项目}/c.md` — 该子项目的操作清单
 - `{子项目}/README.md` — 该子项目的说明文档（仅在用户明确需要、或该子项目需要独立 onboarding 时创建）
+
+## DSH 项目工作台接入
+
+用户要创建可由 DSH「项目工作台」打开的管理目录时，先复用或补齐上面的 Markdown 结构，再从实际子项目清单生成索引。目标是管理目录本身，通常是项目下的 `docs/`。
+
+```sh
+python3 <skill目录>/scripts/workbench.py init <管理目录> --title '项目名称' \
+  --project application '应用' apps/application
+```
+
+每个子项目可用一项 `--project 标识 显示名 相对项目根目录` 登记。标识用于关联进度，重定位目录时继续使用原标识。已存在的索引会保留，内容有差异时先核对现有登记。把最终管理目录、记录命令和本项目的交付证据要求写入项目协作约定，供后续 Agent 自动使用。
+
+### 工作中自动更新
+
+Agent 接手任务时沿用在制任务的标识。在开始、重要进展、阻塞、待审查、验证或完成时主动发布对应记录。能观察到中断时登记中断及接续点。共同任务由负责汇总的 Agent 发布，多 Agent 子任务各用独立标识。用户可在插件追溯记录和文档。
+
+```sh
+python3 <skill目录>/scripts/workbench.py record <管理目录> \
+  --task validate-import --title '验证资料导入' --agent '验证 Agent' \
+  --project application --status verified --summary '隔离环境导入通过' \
+  --evidence '导入命令退出码 0' --document jobs/validate-import.md
+```
+
+状态值为 `running`、`blocked`、`review`、`verified`、`completed`、`interrupted`。可以补充 `--next`、重复提供 `--evidence`，或用 `--event-id` 让可重试的同一事件重复提交时保持幂等。验证和完成记录附上实际证据。进度保存在管理目录下的 `.workbench/events/`，正文继续维护在所属 Markdown 文档。

@@ -1,19 +1,19 @@
 #!/bin/bash
 # switch-api wrapper：切换 provider 并 source 环境变量到当前 shell
-# 用法: source scripts/switch_api.sh <glm|minimax|claude>
+# 用法: source scripts/switch_api.sh <deepseek-flash|minimax|claude>
 #
 # 在非交互场景（如 Amp Bash 调用）中，直接 source key 文件设置环境变量
 # 同时设置 OPENAI_BASE_URL 供 OpenAI Agents SDK 使用
 
 KEYS_DIR="$HOME/.configanthropic/keys"
-PROVIDER="${1:-glm}"
+PROVIDER="${1:-deepseek-flash}"
 
 # OpenAI 兼容端点映射（Anthropic 端点从 key 文件读取）
 _get_openai_base_url() {
     case "$1" in
-        glm)     echo "https://open.bigmodel.cn/api/paas/v4" ;;
-        minimax) echo "https://api.minimax.io/v1" ;;
-        *)       echo "" ;;
+        deepseek-flash) echo "https://api.deepseek.com/v1" ;;
+        minimax)        echo "https://api.minimax.io/v1" ;;
+        *)              echo "" ;;
     esac
 }
 

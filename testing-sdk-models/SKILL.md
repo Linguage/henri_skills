@@ -3,6 +3,7 @@ name: testing-sdk-models
 description: "Test SDK connectivity with third-party model providers (GLM, MiniMax, etc.)."
 author: Henri
 created: "2026-03-15"
+last_updated: "2026-09-14"
 ---
 
 > **单一来源**：本 skill 的唯一实体在 `henri_skills` 仓库中，`~/.claude/skills/` 等均为软链接。编辑时请直接修改 `henri_skills` 中的文件。

@@ -8,6 +8,8 @@ Downloads 收件区与 Documents 本地暂存库的完整目录结构，含分�
 
 ## 完整目录树
 
+The generic template does not override the user conventions in SKILL.md. Henri's document projects use `/Users/henripogatrain/Documents/文档项目/`, organized by purposes such as 文献调研 and 经典研读. Personal archives use the independent sibling root `/Users/henripogatrain/Documents/个人档案/`. Do not nest personal archives inside `文档项目/个人档案/` or keep completed content in `Downloads/项目/` or `Downloads/个人档案/`.
+
 ```
 Downloads/
 ├── _待处理/                       # 尚未识别、待确认或目标不明确
@@ -101,6 +103,8 @@ Documents/
 - `论文/专题综述/`：长综述、专题论文集和超长预印本。完整出版的学术专著与教材仍属于图书，不因出版社、难度或页数移入论文目录。
 
 ## Documents/个人档案子目录
+
+本节仅列出个人档案类别示例；实际根目录使用 SKILL.md 当前用户约定中的个人档案路径，已有学位论文与答辩分类保持独立。
 
 ```
 个人档案/

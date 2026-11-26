@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""基于 OpenAI Agents SDK 测试第三方 provider (GLM / MiniMax)"""
+"""基于 OpenAI Agents SDK 测试第三方 provider (DeepSeek / MiniMax)"""
 
 import asyncio
 import sys
@@ -8,11 +8,11 @@ from pathlib import Path
 KEYS_DIR = Path.home() / ".configanthropic" / "keys"
 
 PROVIDERS = {
-    "glm": {
-        "base_url": "https://open.bigmodel.cn/api/coding/paas/v4",
-    },
     "minimax": {
         "base_url": "https://api.minimax.io/v1",
+    },
+    "deepseek-flash": {
+        "base_url": "https://api.deepseek.com/v1",
     },
 }
 
@@ -66,12 +66,12 @@ async def test_provider(name: str) -> bool:
     print(f"🧪 测试中...", end=" ", flush=True)
 
     client = AsyncOpenAI(api_key=api_key, base_url=base_url)
-    glm_model = OpenAIChatCompletionsModel(model=model, openai_client=client)
+    chat_model = OpenAIChatCompletionsModel(model=model, openai_client=client)
 
     agent = Agent(
         name=f"{name} Agent",
         instructions="你是一个简洁的助手，用中文回答，限制在50字以内。",
-        model=glm_model,
+        model=chat_model,
     )
 
     try:
@@ -109,7 +109,7 @@ async def main():
             print(f"   {p}: {'✅ 通过' if ok else '❌ 失败'}")
         sys.exit(1 if any(not v for v in results.values()) else 0)
     else:
-        provider = args[0] if args else "glm"
+        provider = args[0] if args else "deepseek-flash"
         ok = await test_provider(provider)
         sys.exit(0 if ok else 1)
 

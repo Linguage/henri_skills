@@ -1,6 +1,6 @@
 # 第四阶段：维护书籍清单
 
-每次完成书籍目录的整理操作（新增文件、重命名、归类调整、子目录改名）后，**必须同步更新** `书籍/书籍清单.md`。
+After adding, renaming, moving, reclassifying, or moving books to pending deletion, update that library's `inventory.json` and regenerate `书籍清单.md`.
 
 > 本文件中的 `书籍/` 指本地暂存根目录（通常为 `Documents/`）下的图书库。云端归档库应维护自己的独立清单，不能用其中一方覆盖另一方。
 
@@ -11,7 +11,17 @@
 - `文档/` 下的报告、讲义与一般资料**不在** inventory 中
 - `书籍/杂志/`、`书籍/待确认重复/`、`书籍/重复/` 与 `书籍/已归档/` 不被 update_inventory.py 跟踪；人物和大文件等登记类别支持递归发现
 
-如需对 `论文/` 也建立清单，需另起一个 inventory 文件，本阶段不涉及。
+Keep paper indexes separate from the book inventory. Apply the local-link rules below to existing `文献目录.md` files; do not create a new paper database merely to refresh their links.
+
+## Local-only publication indexes
+
+Henri's Downloads indexes describe files present in the indexed folder, not all works ever processed or archived. For a project `文献目录.md`, the boundary is that file's containing folder and its descendants; for `书籍清单.md`, it is the book-library root and its descendants.
+
+- Build the active list from the actual remaining files after the authorized moves. Do not keep moved-out files in the active catalog or replace their links with OneDrive, sibling-project, other-library, or pending-deletion links.
+- Use relative file links. Decode URL escapes and resolve the target, including symlinks, when validating: it must exist as a file and remain inside the applicable boundary. A link that opens successfully outside that boundary still fails this requirement.
+- Back up the previous generated index in the existing log location. Keep archive destinations and previous locations in movement/history logs, not in the active local index.
+- Keep existing full-text JSONL records, extraction reports, and schemas intact during an index-only cleanup. Do not delete records because the original PDF moved, or automatically rewrite database paths to OneDrive. Historical paths already embedded in raw records are not proof that their files are present locally; distinguish the database's record count from the folder's publication count.
+- A local index may link to its own folder's database and extraction report. If the database includes moved-out publications, state that its records cover more material than the currently retained PDFs.
 
 ## 数据架构
 
@@ -78,28 +88,11 @@
 
 `update_inventory.py` **不会自动删除** missing 条目。当大量文件被分流到 `论文/` 或 `文档/` 后，inventory.json 会保留所有旧条目，导致 书籍清单.md 显示已不存在的文件（链接失效）。
 
-**清理脚本模板**（手动运行）：
+For an authorized move or cleanup, back up the inventory and remove the exact entries identified by the completed move list, using category plus filename rather than filename alone. Preserve all metadata for retained entries. Remove emptied categories from both `categories` and `_meta.categories`, and update totals before regenerating the Markdown.
 
-```python
-import json, os
-BOOKS = "/path/to/Documents/书籍"
-INV = os.path.join(BOOKS, "inventory.json")
-inv = json.load(open(INV))
+Investigate other missing entries separately. Do not silently discard metadata because a path is temporarily unavailable or a library could not be read. The active index must not publish broken file links; keep unresolved metadata in the backup or audit record rather than presenting it as a locally present file.
 
-for cat in list(inv["categories"].keys()):
-    kept = [e for e in inv["categories"][cat]
-            if os.path.exists(os.path.join(BOOKS, cat, e["filename"]))]
-    inv["categories"][cat] = kept
-    if not kept:
-        del inv["categories"][cat]
-        if cat in inv["_meta"]["categories"]:
-            inv["_meta"]["categories"].remove(cat)
-
-inv["_meta"]["total_docs"] = sum(len(v) for v in inv["categories"].values())
-json.dump(inv, open(INV, "w"), ensure_ascii=False, indent=2)
-```
-
-清理后再运行 `update_inventory.py` 重新生成 MD。
+Run `update_inventory.py` after this reconciliation. Running it alone does not remove moved-out entries, and regeneration is not complete until the resulting local links have been checked.
 
 ## 子目录改名 / 拆分时的同步
 
@@ -141,16 +134,16 @@ json.dump(inv, open(INV, "w"), ensure_ascii=False, indent=2)
 
 - **中文译名**：所有英文图书必须提供中文译名
 - **作者格式**：`第一作者姓 et al. (年份)`，单一作者则不加 et al.，中文/非图书文档标 `—`
-- **文件链接**：使用相对路径，文件名做 URL 编码（空格→`%20`，加号→`%2B` 等）
+- **File links**: use valid relative Markdown links to files inside the indexed root. URL-encode special characters, or use the existing generator's angle-bracket destinations where valid; validate decoded, resolved targets in either case.
 - **排序**：同一类别内按文件名字母序排列
 - **更新时机**：每次整理操作完成后立即更新，不可跳过
 
 ## 清单更新检查项
 
 更新清单时需确认：
-- [ ] 文档总数与实际文件数一致（注意 inventory 只跟踪一级子目录）
+- [ ] Catalog totals match actual tracked files, including recursively discovered categories; report excluded magazines and duplicate-review directories separately when counting the entire library.
 - [ ] 每个类别的篇数标注正确
-- [ ] 所有文件链接可点击且指向正确文件（无 missing）
+- [ ] Every active file link resolves to an existing file inside the indexed root; no OneDrive, sibling-library, pending-deletion, or missing-file targets remain.
 - [ ] 新增图书已补充中文译名（INCOMPLETE METADATA 列表为空）
 - [ ] 日期更新为当天
 - [ ] 子目录改名/拆分后，`_meta.categories` 顺序正确

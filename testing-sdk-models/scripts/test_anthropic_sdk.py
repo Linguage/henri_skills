@@ -3,7 +3,7 @@
 """
 测试 Claude Agent SDK 对各模型 provider 的连通性
 用法:
-  python test_sdk.py [provider]          # 测试指定 provider (默认 glm)
+  python test_sdk.py [provider]          # 测试指定 provider (默认 deepseek-flash)
   python test_sdk.py --all               # 测试所有可用 provider
   python test_sdk.py --switch <provider> # 切换 provider 并测试
   python test_sdk.py --switch --list     # 列出所有可用 provider
@@ -51,7 +51,7 @@ def load_provider(name: str) -> str:
 
 def clear_provider_env():
     """清除 provider 环境变量，恢复默认"""
-    for key in ("ANTHROPIC_API_KEY", "ANTHROPIC_BASE_URL", "ANTHROPIC_MODEL"):
+    for key in ("ANTHROPIC_API_KEY", "ANTHROPIC_AUTH_TOKEN", "ANTHROPIC_BASE_URL", "ANTHROPIC_MODEL"):
         os.environ.pop(key, None)
 
 
@@ -97,8 +97,10 @@ def switch_api(provider: str) -> None:
                 os.environ[k] = v
 
 
-async def test_provider(provider: str) -> bool:
+async def test_provider(provider: str, third_party: bool | None = None) -> bool:
     """测试单个 provider，返回是否成功"""
+    if third_party is None:
+        third_party = provider not in ("off", "claude")
     # 每次测试前清除旧变量
     clear_provider_env()
 
@@ -112,11 +114,14 @@ async def test_provider(provider: str) -> bool:
     from claude_agent_sdk import query, ClaudeAgentOptions
 
     # Claude 原生模式用 opus plan；第三方 provider 不设 model（由环境变量控制）
-    is_claude = provider in ("off", "claude")
+    is_claude = provider in ("off", "claude") and not third_party
     opts = ClaudeAgentOptions(
         allowed_tools=[],
         model="claude-opus-4-6" if is_claude else None,
         permission_mode="plan" if is_claude else None,
+        # 第三方 provider 不加载用户 settings，避免 ~/.claude/settings.json
+        # 中的 env（如全局 GLM 配置）覆盖 key 文件里的 provider 变量
+        setting_sources=None if is_claude else [],
     )
 
     print(f"🧪 测试中...", end=" ", flush=True)
@@ -159,7 +164,7 @@ async def main():
         if target == "--list":
             sys.exit(0)
         # 切换后自动测试（provider 已通过 switch_api 加载，用 off 跳过重复加载）
-        ok = await test_provider("off")
+        ok = await test_provider("off", third_party=target not in ("claude", "off"))
         sys.exit(0 if ok else 1)
 
     if "--all" in args:
@@ -186,7 +191,7 @@ async def main():
         sys.exit(1 if failed else 0)
 
     else:
-        provider = args[0] if args else "glm"
+        provider = args[0] if args else "deepseek-flash"
         ok = await test_provider(provider)
         sys.exit(0 if ok else 1)
 
